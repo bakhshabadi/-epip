@@ -1,1 +1,1 @@
-# epip-core
+# epip
