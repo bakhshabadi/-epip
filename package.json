@@ -1,0 +1,22 @@
+{
+  "name": "epip",
+  "version": "0.0.30",
+  "description": "",
+  "main": "index.js",
+  "types": "lib",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nestjs/common": "^8.0.6",
+    "@nestjs/swagger": "^5.0.9",
+    "await-to-js": "^3.0.0",
+    "typeorm": "^0.2.37",
+    "typescript": "^4.4.2",
+    "browserify": "latest",
+    "@types/browserify": "latest"
+  },
+  "dependencies": {}
+}
