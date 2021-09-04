@@ -1,10 +1,13 @@
 {
-  "name": "my-app1",
-  "version": "0.0.1",
+  "name": "@epip/app",
+  "version": "1.0.2",
   "description": "",
-  "author": "",
-  "license": "UNLICENSED",
+  "author": "jvd.bkh",
+  "license": "ISC",
   "main": "src/main.ts",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -30,7 +33,7 @@
     "@nestjs/throttler": "^2.0.0",
     "@nestjs/typeorm": "^8.0.2",
     "await-to-js": "^3.0.0",
-    "epip": "0.0.30",
+    "epip": "0.0.31",
     "fastify-swagger": "^4.8.4",
     "helmet": "^4.6.0",
     "pg": "^8.7.1",
@@ -66,21 +69,12 @@
     "webpack": "^5.48.0",
     "webpack-node-externals": "^3.0.0"
   },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
-  }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bakhshabadi/epip.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bakhshabadi/epip/issues"
+  },
+  "homepage": "https://github.com/bakhshabadi/epip#readme"
 }
