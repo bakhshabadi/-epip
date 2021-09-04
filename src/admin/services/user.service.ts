@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BaseService, IResponse } from 'epip/core';
+import { BaseService, IResponse} from '@epip/crud';
 import { Connection, Repository } from 'typeorm';
 import { Users } from '../models/users.model';
 // import * as epip from 'epip-libs/libs/epip-core/src';

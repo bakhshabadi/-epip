@@ -3,7 +3,7 @@
 // import { BaseController } from "src/@core/controllers/base.controller";
 // import { ApiController } from "src/@core/decorators/swg-ctrl.decorator";
 
-import { ApiController, ApiGetAll, IResponse } from "epip/core";
+import { ApiController, ApiGetAll, IResponse } from "@epip/crud";
 import { Users } from "../models/users.model";
 import { UserService } from "../services/user.service";
 
