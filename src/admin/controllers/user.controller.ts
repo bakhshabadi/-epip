@@ -1,8 +1,3 @@
-// import { IResponse } from "src/@core/types/IRes.interface";
-// import { ApiGetAll } from "src/@core/decorators/swg-get-all.decorator";
-// import { BaseController } from "src/@core/controllers/base.controller";
-// import { ApiController } from "src/@core/decorators/swg-ctrl.decorator";
-
 import { ApiController, ApiDelete, ApiGet, ApiGetAll, ApiPatch, ApiPost, ApiPut, IResponse, IResponseAll } from "@epip/crud";
 import { DeepPartial } from "typeorm";
 import { Users } from "../models/users.model";
@@ -11,6 +6,11 @@ import { UserService } from "../services/user.service";
 @ApiController(Users)
 export class UserController {
   constructor(private readonly service: UserService) {
+  }
+
+  @ApiGetAll(Users)
+  public async getAll(): Promise<IResponseAll<Users>>  {
+    return await this.service.getAll();
   }
 
   @ApiGet(Users)
