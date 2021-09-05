@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BaseService, IResponse} from '@epip/crud';
 import { Connection, Repository } from 'typeorm';
-import { Users } from '../models/users.model';
+import { User } from '../models/user.model';
 // import * as epip from 'epip-libs/libs/epip-core/src';
 
 @Injectable()
-export class UserService extends BaseService<Users>{
+export class UserService extends BaseService<User>{
   constructor(
     @Inject('USER_REPOSITORY')
-    repo:Repository<Users>
+    repo:Repository<User>
   ){
       super(repo)
   }
@@ -24,7 +24,7 @@ export class UserService extends BaseService<Users>{
 export const UserProviders = [
   {
     provide: 'USER_REPOSITORY',
-    useFactory: (connection: Connection) => connection.getRepository(Users),
+    useFactory: (connection: Connection) => connection.getRepository(User),
     inject: ['DATABASE_CONNECTION'],
   },
 ];

@@ -1,4 +1,4 @@
-import { Users } from 'src/admin/models/users.model';
+import { User } from 'src/admin/models/user.model';
 import { ConnectionOptions, createConnection } from 'typeorm';
 
 
@@ -14,7 +14,7 @@ export const databaseProviders = [
       database: process.env.DB_DATABASE,
       entities: [
         // __dirname+'../../../../../src/**/*.model{.ts,.js}',
-        Users
+        User
       ],
       synchronize: true,
     } as ConnectionOptions) ,

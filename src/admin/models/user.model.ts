@@ -1,8 +1,9 @@
+import { BaseEntity } from "@epip/crud";
 import { ApiProperty } from "@nestjs/swagger";
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Users {
+export class User extends BaseEntity{
   @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
