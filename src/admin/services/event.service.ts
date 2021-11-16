@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BaseService, IResponse } from '@lib/epip-crud';
-import { Connection, Repository } from 'typeorm';
+import { Connection, IsNull, Repository } from 'typeorm';
 import { DB_Providers } from 'src/@database/enums/db.enum';
 import * as Model from '../models/crm/';
 import to from 'await-to-js';
 import { Request } from 'express';
+import { KavenegarService } from './kavenegar.service';
 
 @Injectable()
 export class EventService extends BaseService<Model.Event>{
@@ -13,6 +14,8 @@ export class EventService extends BaseService<Model.Event>{
     public eventRepo: Repository<Model.Event>,
     @Inject('CUSTOMER_REPOSITORY')
     public customerRepo: Repository<Model.Customer>,
+
+    private kavenegar: KavenegarService
   ) {
     super(eventRepo)
   }
@@ -94,12 +97,31 @@ export class EventService extends BaseService<Model.Event>{
       insert into customer_events_event ("customerId","eventId") values(${entity.customer_id},${result1.id})
     `));
 
+
+
     if (err2) {
       return {
         status: 500,
         message: err2.message,
       } as IResponse<Model.Event>;
     }
+
+    const [err3, result3] = await to(
+      this.customerRepo.findOne({
+        where: {
+          id:entity.customer_id,
+          deletedAt: IsNull(),
+        },
+      })
+    );
+    if (err3) {
+      return {
+        status: 500,
+        message: err2.message,
+      } as IResponse<Model.Event>;
+    }
+
+    this.kavenegar.sendRuleSms(entity.event,result3)
 
     return {
       status: 201,

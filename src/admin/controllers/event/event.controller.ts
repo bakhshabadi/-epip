@@ -2,7 +2,9 @@ import { ApiController, ApiDelete, ApiGet, ApiGetAll, ApiPatch, ApiPost, ApiPut,
 import { Body, Param, Req, Post, Patch } from "@nestjs/common";
 import { Request } from "express";
 import * as Model from "src/admin/models/crm";
+import * as Kavenegar from "kavenegar";
 import { EventService } from "src/admin/services/event.service";
+import { env } from "process";
 
 @ApiController(Model.Event)
 export class EventController {
@@ -16,7 +18,7 @@ export class EventController {
 
   @Patch(":modaratorId/:customerId/:eventId")
   public async doneEvent(@Req() req: Request, @Param() param): Promise<IResponse<boolean>>{
-    return await this.service.doneEvent(req, param.modaratorId,param.customerId,param.eventId);
+    return await this.service.doneEvent(req, param.modaratorId, param.customerId, param.eventId);
   }
 
   // @ApiGetAll(Event)

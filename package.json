@@ -39,6 +39,7 @@
     "await-to-js": "^3.0.0",
     "fastify-swagger": "^4.8.4",
     "helmet": "^4.6.0",
+    "kavenegar": "^1.1.4",
     "lodash": "^4.17.21",
     "pg": "^8.7.1",
     "postgres": "^1.0.2",

@@ -7,6 +7,7 @@ import { PersonController } from "./controllers/person/person.controller";
 import { PostController } from "./controllers/post/post.controller";
 import { CustomerProviders, CustomerService } from "./services/customer.service";
 import { EventProviders, EventService } from "./services/event.service";
+import { KavenegarService } from "./services/kavenegar.service";
 import { PersonProviders, PersonService } from "./services/person.service";
 import { PostProviders, PostService } from "./services/post.service";
 
@@ -19,6 +20,7 @@ import { PostProviders, PostService } from "./services/post.service";
     PostController
   ],
   providers: [
+    KavenegarService,
     CustomerService, 
     PersonService,
     EventService,
