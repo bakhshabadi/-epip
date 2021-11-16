@@ -1,4 +1,18 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "sourceRoot": "src",
+  "projects": {
+    "epip-crud": {
+      "type": "library",
+      "root": "libs/epip-crud",
+      "entryFile": "index",
+      "sourceRoot": "libs/epip-crud/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/epip-crud/tsconfig.lib.json"
+      }
+    }
+  },
+  "compilerOptions": {
+    "webpack": true
+  }
 }

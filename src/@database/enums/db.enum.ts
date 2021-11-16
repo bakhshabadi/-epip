@@ -1,0 +1,4 @@
+export enum DB_Providers {
+    CRM_CONNECTION = "CRM_CONNECTION",
+    MOZ_CONNECTION = "MOZ_CONNECTION"
+}

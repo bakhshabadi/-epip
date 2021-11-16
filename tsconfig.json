@@ -11,6 +11,14 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@lib/epip-crud": [
+        "libs/epip-crud/src"
+      ],
+      "@lib/epip-crud/*": [
+        "libs/epip-crud/src/*"
+      ]
+    }
   }
 }

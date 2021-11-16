@@ -2,6 +2,8 @@ import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./@app/app.module";
 import * as helmet from "helmet";
+import { Response } from "express";
+
 // import * as dotenv from "dotenv";
 // import * as csurf from 'csurf';
 // import * as cookieParser from 'cookie-parser';
@@ -11,7 +13,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // app.use(cookieParser())
   // app.use(csurf());
+  app.enableCors({
+    credentials:true,
+    origin:true
+  });
   app.use(helmet());
+  
 
   const swConfig = new DocumentBuilder()
     .setTitle("Sample Apis")
@@ -21,7 +28,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swConfig);
   SwaggerModule.setup("api", app, document);
 
-  app.enableCors();
+  
 
   if (module.hot) {
     module.hot.accept();

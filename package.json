@@ -12,7 +12,7 @@
     "dep": "npm uninstall @epip/crud && npm install @epip/crud && npm start",
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start --watch",
     "start:dev": "nest start --watch",
     "start:dev-hot": "nest build --webpack --webpackPath webpack-hmr.config.js --watch",
@@ -26,7 +26,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@epip/crud": "^1.0.53",
+    "@mikro-orm/core": "^4.5.9",
+    "@mikro-orm/nestjs": "^4.3.1",
+    "@mikro-orm/postgresql": "^4.5.9",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.0.1",
     "@nestjs/core": "^8.0.0",
@@ -37,13 +39,14 @@
     "await-to-js": "^3.0.0",
     "fastify-swagger": "^4.8.4",
     "helmet": "^4.6.0",
+    "lodash": "^4.17.21",
     "pg": "^8.7.1",
     "postgres": "^1.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.1.6",
-    "typeorm": "^0.2.37"
+    "typeorm": "^0.2.39"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
