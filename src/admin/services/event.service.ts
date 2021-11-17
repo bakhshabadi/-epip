@@ -6,6 +6,8 @@ import * as Model from '../models/crm/';
 import to from 'await-to-js';
 import { Request } from 'express';
 import { KavenegarService } from './kavenegar.service';
+import { TemplateType } from '../enums/kavenegar.type';
+import { AvanakService } from './avanak.service';
 
 @Injectable()
 export class EventService extends BaseService<Model.Event>{
@@ -14,10 +16,25 @@ export class EventService extends BaseService<Model.Event>{
     public eventRepo: Repository<Model.Event>,
     @Inject('CUSTOMER_REPOSITORY')
     public customerRepo: Repository<Model.Customer>,
-
-    private kavenegar: KavenegarService
+    private kavenegar: KavenegarService,
+    private avanak: AvanakService
   ) {
     super(eventRepo)
+  }
+
+  private sendRuleSms(event:Model.Event, customer: Model.Customer){
+    switch (event.subject) {
+      case "value1":
+        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name]);
+        break;
+      case "value2":
+        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name]);
+        break;
+      case "value3":
+        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name]);
+        this.avanak.sendVoiceMessage(customer);
+        break;
+    }
   }
 
   private async checkCustomerForModerator(modratorId:number,customerId:number): Promise<Model.Customer> {
@@ -66,8 +83,8 @@ export class EventService extends BaseService<Model.Event>{
         message: 'error !.',
       } as IResponse<boolean>;
     }
-
   }
+  
 
   public async addEvent(req: Request, entity: Model.IAddEvent): Promise<IResponse<Model.Event>> {
     let [err, result] = await to(this.checkCustomerForModerator(entity.moderator_id,entity.customer_id));
@@ -97,8 +114,6 @@ export class EventService extends BaseService<Model.Event>{
       insert into customer_events_event ("customerId","eventId") values(${entity.customer_id},${result1.id})
     `));
 
-
-
     if (err2) {
       return {
         status: 500,
@@ -121,7 +136,7 @@ export class EventService extends BaseService<Model.Event>{
       } as IResponse<Model.Event>;
     }
 
-    this.kavenegar.sendRuleSms(entity.event,result3)
+    this.sendRuleSms(entity.event,result3)
 
     return {
       status: 201,
@@ -129,6 +144,7 @@ export class EventService extends BaseService<Model.Event>{
       result: result2
     } as IResponse<Model.Event>;
   }
+
 }
 
 export const EventProviders = [

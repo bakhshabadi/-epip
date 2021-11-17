@@ -5,6 +5,7 @@ import { CustomerController } from "./controllers/customer/customer.controller";
 import { EventController } from "./controllers/event/event.controller";
 import { PersonController } from "./controllers/person/person.controller";
 import { PostController } from "./controllers/post/post.controller";
+import { AvanakService } from "./services/avanak.service";
 import { CustomerProviders, CustomerService } from "./services/customer.service";
 import { EventProviders, EventService } from "./services/event.service";
 import { KavenegarService } from "./services/kavenegar.service";
@@ -21,6 +22,8 @@ import { PostProviders, PostService } from "./services/post.service";
   ],
   providers: [
     KavenegarService,
+    AvanakService,
+    
     CustomerService, 
     PersonService,
     EventService,

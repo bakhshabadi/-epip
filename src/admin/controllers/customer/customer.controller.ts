@@ -3,13 +3,14 @@ import { Body, Get, Param, Req } from "@nestjs/common";
 import { Request } from "express";
 import { Customer } from "src/admin/models/crm/customer.model";
 import { CustomerService } from "src/admin/services/customer.service";
+import { PersonService } from "src/admin/services/person.service";
 // import { PersonService } from "src/admin/services/person.service";
 
 @ApiController(Customer)
 export class CustomerController {
   constructor(
     private readonly crmService: CustomerService,
-    // private readonly mozService: PersonService
+    private readonly mozService: PersonService
   ) {
   }
 
@@ -26,7 +27,11 @@ export class CustomerController {
 
   @ApiPost(Customer)
   public async post(@Req() req: Request, @Body() entity:Customer): Promise<IResponse<Customer>>  {
-    return await this.crmService.post(req,entity);
+    let ret = await this.crmService.post(req,entity);
+    if(ret.status==201){
+      this.mozService.addPerson(ret.result);
+    }
+    return ret;
   }
 
   @ApiPut(Customer,':id')

@@ -15,7 +15,7 @@ export class Customer extends BaseEntity{
   name: string;
 
   @ApiProperty()
-  @Column({type:'bigint'})
+  @Column({type:'bigint',unique:true})
   phone: number;
 
   @ApiProperty()

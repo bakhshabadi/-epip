@@ -12,6 +12,7 @@ export class CustomerService extends BaseService<Customer>{
   ){
       super(repo,['post','events'])
   }
+
 }
 
 export const CustomerProviders = [

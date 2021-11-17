@@ -5,15 +5,26 @@ import * as Model from "src/admin/models/crm";
 import * as Kavenegar from "kavenegar";
 import { EventService } from "src/admin/services/event.service";
 import { env } from "process";
+import { AvanakService } from "src/admin/services/avanak.service";
+import { Customer } from "src/admin/models/crm";
 
 @ApiController(Model.Event)
 export class EventController {
-  constructor(private readonly service: EventService) {
+  constructor(private readonly service: EventService,private readonly a:AvanakService) {
   }
 
   @Post()
   public async addEvent(@Req() req: Request, @Body() entity:Model.IAddEvent): Promise<IResponse<Model.Event>>{
     return await this.service.addEvent(req, entity);
+  }
+
+  @Post("/send")
+  public async send(@Req() req: Request): Promise<IResponse<any>>{
+    this.a.sendVoiceMessage({phone:9157006634} as Customer)
+    return {
+      status: 201,
+      message: "پیام با موفقیت ارسال شد"
+    } as IResponse<string>;
   }
 
   @Patch(":modaratorId/:customerId/:eventId")
