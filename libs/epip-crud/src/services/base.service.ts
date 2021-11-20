@@ -12,34 +12,33 @@ export class BaseService<T> {
   ) { }
 
   public async getAll(@Req() req: Request): Promise<IResponseAll<T>> {
-    let filter={
+    let filter = {
       ...(this.relations ? { relations: this.relations } : {}),
       ...(req.query.offset ? { skip: +req.query.offset } : {}),
       ...(req.query.limit ? { take: +req.query.limit } : {}),
-      order:{
-        id:"ASC"
+      order: {
+        id: "ASC"
       },
       where: {
         deletedAt: IsNull()
       }
     }
-    _(req.query).map((f,key)=>{
+    _(req.query).map((f, key) => {
       let commands = key.split("__");
-      if(commands.length==1){
-        if(!['offset','limit'].find(c=>c==key)){
-          filter.where[key]=f;
+      if (commands.length == 1) {
+        if (!['offset', 'limit'].find(c => c == key)) {
+          filter.where[key] = f;
         }
-      }else{
+      } else {
         switch (commands[1]) {
           case 'isnull':
-            if(f.toLowerCase()=='true'){
-              filter.where[commands[0]]=IsNull();
+            if (f.toLowerCase() == 'true') {
+              filter.where[commands[0]] = IsNull();
             }
             break;
         }
       }
     }).value()
-    console.log(filter.where)
     const [err, results] = await to(this.repo.find(filter));
     if (err) {
       return {
@@ -82,6 +81,15 @@ export class BaseService<T> {
 
   public async post(req: Request, entity: T): Promise<IResponse<T>> {
     (entity as any).insertedAt = new Date()
+    if (this.relations) {
+      for (const key in entity) {
+        if (Object.prototype.hasOwnProperty.call(entity, key)) {
+          if (this.relations.includes(key)) {
+            delete entity[key];
+          }
+        }
+      }
+    }
     const [err, result] = await to(this.repo.save(entity));
     if (err) {
       return {
@@ -125,6 +133,15 @@ export class BaseService<T> {
 
     let res;
     (data as any).updatedAt = new Date();
+    if (this.relations) {
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          if (this.relations.includes(key)) {
+            delete data[key];
+          }
+        }
+      }
+    }
     [err, res] = await to(this.repo.update(id, data));
     if (err) {
       return {
@@ -150,7 +167,7 @@ export class BaseService<T> {
     let [err, results] = await to(this.get(req, id));
     if (err) {
       return {
-        status: 500,
+        status: 501,
         message: err.message,
       } as IResponse<T>;
     }
@@ -172,10 +189,19 @@ export class BaseService<T> {
 
     let res;
     (data as any).updatedAt = new Date();
+    if (this.relations) {
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          if (this.relations.includes(key)) {
+            delete data[key];
+          }
+        }
+      }
+    }
     [err, res] = await to(this.repo.update(id, data));
     if (err) {
       return {
-        status: 500,
+        status: 502,
         message: err.message,
       } as IResponse<T>;
     }
@@ -187,7 +213,7 @@ export class BaseService<T> {
       };
     } else {
       return {
-        status: 500,
+        status: 503,
         message: 'error !.',
       } as IResponse<T>;
     }
@@ -206,6 +232,15 @@ export class BaseService<T> {
     if (results?.result) {
       data = results?.result;
       (data as any).deletedAt = new Date();
+      if (this.relations) {
+        for (const key in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            if (this.relations.includes(key)) {
+              delete data[key];
+            }
+          }
+        }
+      }
       let [errDelete, resultsDelete] = await to(this.repo.update(id, data));
       if (errDelete) {
         return {

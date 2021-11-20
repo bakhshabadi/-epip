@@ -7,7 +7,6 @@ export const ApiGetAll = <TModel extends Type<any>>(
   path?: string
 ) => {
   let s=getSchemaPath(IResponseAll);
-  console.log(s);
   return applyDecorators(
     Get(path || "/"),
     ApiOkResponse({

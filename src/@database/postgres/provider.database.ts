@@ -1,7 +1,8 @@
-import { Customer } from 'src/admin/models/crm/customer.model';
-import { Post } from 'src/admin/models/crm/post.model';
-import { Event } from 'src/admin/models/crm/event.model';
+import { Customer } from '../../admin/models/crm/customer.model';
+import { Post } from '../../admin/models/crm/post.model';
+import { Event } from '../../admin/models/crm/event.model';
 import { ConnectionOptions, createConnection } from 'typeorm';
+import { Competitor } from 'src/admin/models/crm/file.model copy';
 
 
 export const DatabaseProviders = [
@@ -16,9 +17,10 @@ export const DatabaseProviders = [
       database: process.env.DB_DATABASE,
       entities: [
         // __dirname+'../../../../../src/**/*.model{.ts,.js}',
+        Competitor,
         Customer,
         Event,
-        Post
+        Post,
       ],
       synchronize: true,
     } as ConnectionOptions) ,

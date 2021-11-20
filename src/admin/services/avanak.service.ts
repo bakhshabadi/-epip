@@ -18,7 +18,6 @@ export class AvanakService{
         serverid: process.env.AVANAK_SERVERID
       }
     } as Axios.AxiosRequestConfig;
-    console.log(options);
 
     Axios.default.request(options).then(function (response) {
       console.log(response.data);

@@ -2,6 +2,7 @@ import { BaseEntity } from "@lib/epip-crud";
 import { ApiProperty } from "@nestjs/swagger";
 import { Entity, Column, PrimaryGeneratedColumn, JoinTable, ManyToMany, ManyToOne } from "typeorm";
 import { Event } from "./event.model";
+import { Competitor } from "./file.model copy";
 import { Post } from "./post.model";
 
 @Entity()
@@ -34,6 +35,7 @@ export class Customer extends BaseEntity{
   @ManyToOne(() => Post, post => post.customers)
   post: Post;
 
+  
   @ApiProperty()
   @Column({ default: null,type:'bigint'})
   seller_id: number
@@ -58,6 +60,32 @@ export class Customer extends BaseEntity{
   @ManyToMany(() => Event)
   @JoinTable()
   events: Array<Event>;
+
+  @ApiProperty()
+  @ManyToMany(() => Competitor)
+  @JoinTable()
+  competitor: Array<Competitor>;
+
+  @ApiProperty()
+  @Column({ default: false})
+  is_video_record: boolean;
+
+  @ApiProperty()
+  @Column({default: null, type: 'int'})
+  filing_rate: number;
+
+  @ApiProperty()
+  @Column({default: null, type: 'int'})
+  support_rate: number;
   
+  @ApiProperty()
+  @Column({default: ''})
+  advantages: string;
+
+  @ApiProperty()
+  @Column({default: ''})
+  disadvantages: string;
+  
+
 }
 
