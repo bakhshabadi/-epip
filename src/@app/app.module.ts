@@ -13,7 +13,7 @@ import { AdminModule } from "../admin/admin.module";
     AdminModule,
     AppRouter,
     ConfigModule.forRoot({
-      envFilePath: (()=>(process.env.npm_lifecycle_event=='start:dev'?'env/dev.env': 'env/prod.env'))(),
+      envFilePath: (()=>(process.env.npm_lifecycle_event=='start'?'env/dev.env': 'env/prod.env'))(),
     }),
   ],
   controllers: [],

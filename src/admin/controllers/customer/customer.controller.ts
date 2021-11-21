@@ -1,5 +1,6 @@
 import { ApiController, ApiDelete, ApiGet, ApiGetAll, ApiPatch, ApiPost, ApiPut, IResponse, IResponseAll } from "@lib/epip-crud";
 import { Body, Get, Param, Req } from "@nestjs/common";
+import to from "await-to-js";
 import { Request } from "express";
 import { Customer } from "src/admin/models/crm/customer.model";
 import { CustomerService } from "src/admin/services/customer.service";
@@ -26,12 +27,31 @@ export class CustomerController {
   }
 
   @ApiPost(Customer)
-  public async post(@Req() req: Request, @Body() entity:Customer): Promise<IResponse<Customer>>  {
-    let ret = await this.crmService.post(req,entity);
-    if(ret.status==201){
-      this.mozService.addPerson(ret.result);
+  public async post(@Req() req: Request, @Body() entity:Customer): Promise<IResponse<string>>  {
+    //IResponse<Customer>
+    let [err,data] =await to(this.mozService.addPerson(entity));
+    if(err){
+      return {
+        status: 500,
+        message: (err as any)
+      } as IResponse<string>;
+    }else{
+
+      let ret = await this.crmService.post(req,entity);
+      if(ret.status==201){
+        return {
+          status: 200,
+          message: 'اطلاعات به درستی ثبت گردید'
+        } as IResponse<string>;
+      }
+
+      return {
+        status: 500,
+        message: 'مشتری در سامانه crm ثبت نشد.'
+      } as IResponse<string>;
+      
     }
-    return ret;
+    
   }
 
   @ApiPut(Customer,':id')
