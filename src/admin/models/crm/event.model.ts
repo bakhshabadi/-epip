@@ -22,8 +22,12 @@ export class Event extends BaseEntity{
   event_time: Date;
 
   @ApiProperty()
+  @Column({ default: null, length: 10})
+  is_done: string;
+
+  @ApiProperty()
   @Column({ default: false})
-  is_done: boolean;
+  is_auto_service: boolean;
 }
 
 export class IAddEvent{

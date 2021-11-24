@@ -1,9 +1,10 @@
 import { to } from "await-to-js";
-import { DeepPartial, IsNull, Repository } from "typeorm";
+import { DeepPartial, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Repository } from "typeorm";
 import { IResponse, IResponseAll } from "../types";
 import { Request } from "express";
 import { Req } from "@nestjs/common";
 import * as _ from "lodash";
+import { Customer } from "src/admin/models/crm";
 
 export class BaseService<T> {
   constructor(
@@ -19,27 +20,55 @@ export class BaseService<T> {
       order: {
         id: "ASC"
       },
-      where: {
-        deletedAt: IsNull()
-      }
+      where: ''
+      // where: {
+      //   deleted_at: IsNull()
+      // }
     }
+
+    let where=[];
+
     _(req.query).map((f, key) => {
       let commands = key.split("__");
       if (commands.length == 1) {
         if (!['offset', 'limit'].find(c => c == key)) {
-          filter.where[key] = f;
+          where.push(`${key}=${f}`);
         }
       } else {
         switch (commands[1]) {
           case 'isnull':
             if (f.toLowerCase() == 'true') {
-              filter.where[commands[0]] = IsNull();
+              // where.push(`tb.${commands[0]} is null`);
+              // filter.where[commands[0]] = IsNull();
             }
+            break;
+          case 'contains':
+            where.push(`${commands[0]}::varchar like '%${f}%'`);
+            // filter.where[commands[0]] = Like(`%${f}%`);
+            break;
+          case 'gte':
+            where.push(`${commands[0]} >= ${f}`);
+            // filter.where[commands[0]] = MoreThanOrEqual(f);
+            break;
+          case 'lte':
+            where.push(`${commands[0]} <= ${f}`);
+            // filter.where[commands[0]] = LessThanOrEqual(f);
+            break;
+          case 'gt':
+            where.push(`${commands[0]} > ${f}`);
+            // filter.where[commands[0]] = MoreThan(f);
+            break;
+          case 'lt':
+            where.push(`${commands[0]} < ${f}`);
+            // filter.where[commands[0]] = LessThan(f);
             break;
         }
       }
-    }).value()
-    const [err, results] = await to(this.repo.find(filter));
+    }).value();
+
+    filter.where=where.join(" and ");
+    
+    const [err, [results,count]] = await to(this.repo.findAndCount(filter));
     if (err) {
       return {
         status: 500,
@@ -48,6 +77,7 @@ export class BaseService<T> {
     }
 
     return {
+      count,
       status: 200,
       message: "ok",
       results: (results as T[]),
@@ -60,7 +90,7 @@ export class BaseService<T> {
         ...(this.relations ? { relations: this.relations } : {}),
         where: {
           id,
-          deletedAt: IsNull(),
+          deleted_at: IsNull(),
         },
 
       })
@@ -80,7 +110,7 @@ export class BaseService<T> {
   }
 
   public async post(req: Request, entity: T): Promise<IResponse<T>> {
-    (entity as any).insertedAt = new Date()
+    (entity as any).inserted_at = new Date()
     if (this.relations) {
       for (const key in entity) {
         if (Object.prototype.hasOwnProperty.call(entity, key)) {
@@ -106,7 +136,7 @@ export class BaseService<T> {
   }
 
   public async put(req: Request, id: number, entity: T): Promise<IResponse<T>> {
-    (entity as any).insertedAt = new Date()
+    (entity as any).inserted_at = new Date()
     let [err, results] = await to(this.get(req, id));
     if (err) {
       return {
@@ -132,7 +162,7 @@ export class BaseService<T> {
     }
 
     let res;
-    (data as any).updatedAt = new Date();
+    (data as any).updated_at = new Date();
     if (this.relations) {
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -188,7 +218,7 @@ export class BaseService<T> {
     }
 
     let res;
-    (data as any).updatedAt = new Date();
+    (data as any).updated_at = new Date();
     if (this.relations) {
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -231,7 +261,7 @@ export class BaseService<T> {
     let data: DeepPartial<T>;
     if (results?.result) {
       data = results?.result;
-      (data as any).deletedAt = new Date();
+      (data as any).deleted_at = new Date();
       if (this.relations) {
         for (const key in data) {
           if (Object.prototype.hasOwnProperty.call(data, key)) {

@@ -25,6 +25,7 @@ export class PersonController {
       element.address='';
       element.phone=people[i].phone;
       element.count_ads=people[i].count;
+      element.moz_id=people[i].id;
       
       let res= await this.crmService.post(null,element);
       if(res.status==201){

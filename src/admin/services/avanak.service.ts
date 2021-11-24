@@ -5,7 +5,7 @@ import * as Axios from "axios"
 @Injectable()
 export class AvanakService{
 
-  public sendVoiceMessage(customer: Customer){
+  public sendVoiceMessage(phone: number){
     const options = {
       method: 'POST',
       url: process.env.AVANAK_URL,
@@ -13,7 +13,7 @@ export class AvanakService{
         UserName: process.env.AVANAK_USERNAME,
         Password: process.env.AVANAK_PASSWORD,
         messageId: process.env.AVANAK_MESSAGEID,
-        number: customer.phone,
+        number: phone,
         vote: process.env.AVANAK_VOTE,
         serverid: process.env.AVANAK_SERVERID
       }

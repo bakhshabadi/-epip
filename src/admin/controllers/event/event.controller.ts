@@ -1,5 +1,5 @@
 import { ApiController, ApiDelete, ApiGet, ApiGetAll, ApiPatch, ApiPost, ApiPut, IResponse, IResponseAll } from "@lib/epip-crud";
-import { Body, Param, Req, Post, Patch } from "@nestjs/common";
+import { Body, Param, Req, Post, Patch, Delete, Put } from "@nestjs/common";
 import { Request } from "express";
 import * as Model from "src/admin/models/crm";
 import * as Kavenegar from "kavenegar";
@@ -7,20 +7,22 @@ import { EventService } from "src/admin/services/event.service";
 import { env } from "process";
 import { AvanakService } from "src/admin/services/avanak.service";
 import { Customer } from "src/admin/models/crm";
+import { KavenegarService } from "src/admin/services/kavenegar.service";
 
 @ApiController(Model.Event)
 export class EventController {
-  constructor(private readonly service: EventService,private readonly a:AvanakService) {
+  constructor(private readonly service: EventService,private readonly a:AvanakService, private readonly k:KavenegarService) {
   }
 
-  @Post()
-  public async addEvent(@Req() req: Request, @Body() entity:Model.IAddEvent): Promise<IResponse<Model.Event>>{
-    return await this.service.addEvent(req, entity);
+  @Post(":subscribe")
+  public async addEvent(@Req() req: Request,@Param() param , @Body() entity:Model.IAddEvent): Promise<IResponse<Model.Event>>{
+    return await this.service.addEvent(req, entity, param.subscribe);
   }
 
-  @Post("/send")
+  @Put("/send")
   public async send(@Req() req: Request): Promise<IResponse<any>>{
-    this.a.sendVoiceMessage({phone:9157006634} as Customer)
+    // this.a.sendVoiceMessage({phone:9157006634} as Customer)
+    this.k.sendOtp(9054400067,'welcome',[ 'ایمان شعیبی', 'سه روزه', 'شیما شعیبی' ]);
     return {
       status: 201,
       message: "پیام با موفقیت ارسال شد"
@@ -30,6 +32,11 @@ export class EventController {
   @Patch(":modaratorId/:customerId/:eventId")
   public async doneEvent(@Req() req: Request, @Param() param): Promise<IResponse<boolean>>{
     return await this.service.doneEvent(req, param.modaratorId, param.customerId, param.eventId);
+  }
+
+  @Delete(":modaratorId/:customerId/:eventId")
+  public async removeEvent(@Req() req: Request, @Param() param): Promise<IResponse<boolean>>{
+    return await this.service.removeEvent(req, param.modaratorId, param.customerId, param.eventId);
   }
 
   // @ApiGetAll(Event)

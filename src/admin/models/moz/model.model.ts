@@ -4,6 +4,7 @@ import { Entity, Column, PrimaryGeneratedColumn, JoinTable, ManyToMany } from "t
 
 @Entity()
 export class Person{
+  id: number;
   seller_id: number;
   phone: number;
   name: string;

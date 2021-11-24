@@ -27,22 +27,28 @@ export class CustomerController {
   }
 
   @ApiPost(Customer)
-  public async post(@Req() req: Request, @Body() entity:Customer): Promise<IResponse<string>>  {
+  public async post(@Req() req: Request, @Body() entity:Customer): Promise<IResponse<any>>  {
     //IResponse<Customer>
     let [err,data] =await to(this.mozService.addPerson(entity));
+    
     if(err){
       return {
         status: 500,
         message: (err as any)
       } as IResponse<string>;
     }else{
-
+      entity.moz_id=data;
+      entity.deleted_at=null;
       let ret = await this.crmService.post(req,entity);
       if(ret.status==201){
         return {
           status: 200,
-          message: 'اطلاعات به درستی ثبت گردید'
-        } as IResponse<string>;
+          message: 'اطلاعات به درستی ثبت گردید',
+          result:{
+            mozUserId:data,
+            crmUser:ret.result
+          }
+        } as IResponse<any>;
       }
 
       return {

@@ -2,7 +2,7 @@ import { BaseEntity } from "@lib/epip-crud";
 import { ApiProperty } from "@nestjs/swagger";
 import { Entity, Column, PrimaryGeneratedColumn, JoinTable, ManyToMany, ManyToOne } from "typeorm";
 import { Event } from "./event.model";
-import { Competitor } from "./file.model copy";
+import { Competitor } from "./file.model";
 import { Post } from "./post.model";
 
 @Entity()
@@ -10,6 +10,10 @@ export class Customer extends BaseEntity{
   @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
+
+  @ApiProperty()
+  @Column({type:'bigint',default:null})
+  moz_id: number;
 
   @ApiProperty()
   @Column({ length: 100 })

@@ -8,6 +8,7 @@ import { Request } from 'express';
 import { KavenegarService } from './kavenegar.service';
 import { TemplateType } from '../enums/kavenegar.type';
 import { AvanakService } from './avanak.service';
+import { ConstService } from '../enums/event.type';
 
 @Injectable()
 export class EventService extends BaseService<Model.Event>{
@@ -22,17 +23,19 @@ export class EventService extends BaseService<Model.Event>{
     super(eventRepo)
   }
 
-  private sendRuleSms(event:Model.Event, customer: Model.Customer){
+  public sendRuleSms(event:Model.Event, customer: Model.Customer,details: string){
     switch (event.subject) {
-      case "value1":
-        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name]);
+      case ConstService.EventStatus.buySubscribe:
+        //sms welcome
+        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name,details,customer.moderator_name]);
         break;
-      case "value2":
-        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name]);
+      case ConstService.EventStatus.trackOrder:
+        //sms welcome
+        this.kavenegar.sendOtp(customer.phone,TemplateType.Survey,[customer.name]);
         break;
-      case "value3":
-        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name]);
-        this.avanak.sendVoiceMessage(customer);
+      case ConstService.EventStatus.buyFinalSubscribe:
+        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name,details,customer.moderator_name]);
+        this.avanak.sendVoiceMessage(customer.phone);
         break;
     }
   }
@@ -63,7 +66,87 @@ export class EventService extends BaseService<Model.Event>{
     }
 
     let [err1, result1] = await to(this.repo.update(eventId, {
-      is_done:true
+      is_done:'yes'
+    }));
+    if (err1) {
+      return {
+        status: 500,
+        message: err1.message,
+      } as IResponse<boolean>;
+    }
+
+    if (result1?.affected) {
+      let customer= await this.customerRepo.findOne(customerId);
+
+      this.addEvent(req,{
+        customer_id:customerId,
+        event:{
+          subject:ConstService.EventStatus.sendSurvay,
+          deleted_at:null,
+          details: customer.name,
+          is_done: '',
+          is_auto_service: true, //سیستم به صورت اتومات کار را انجام میدهد
+          event_time: new Date(Date.now()+(+process.env.SEND_SURVAY_TIME_HOUR*3600*1000))
+        } as Model.Event,
+        moderator_id:modratorId
+      },'');
+
+      this.addEvent(req,{
+        customer_id:customerId,
+        event:{
+          subject:ConstService.EventStatus.avanakCall,
+          deleted_at:null,
+          details: customer.name,
+          is_done: '',
+          is_auto_service: true, //سیستم به صورت اتومات کار را انجام میدهد
+          event_time: new Date(Date.now()+(+process.env.SEND_AVANAK_CALL_TIME_HOUR*3600*1000))
+        } as Model.Event,
+        moderator_id:modratorId
+      },'');
+
+      this.addEvent(req,{
+        customer_id:customerId,
+        event:{
+          subject:ConstService.EventStatus.trackOrder,
+          deleted_at:null,
+          details: customer.name+"("+customer.phone+"): جهت پیگیری 'خرید' تماس گرفته شود",
+          is_done: null,
+          is_auto_service: false, 
+          event_time: new Date(Date.now()+(+process.env.TRACK_ORDER_TIME_HOUR*3600*1000))
+        } as Model.Event,
+        moderator_id:modratorId
+      },'');
+
+      // this.kavenegar.sendOtp(result.phone,TemplateType.Survey,[result.name]);
+      return {
+        status: 200,
+        message: "ok",
+      };
+    } else {
+      return {
+        status: 500,
+        message: 'error !.',
+      } as IResponse<boolean>;
+    }
+  }
+
+  public async removeEvent(req: Request, modratorId:number,customerId:number , eventId:number): Promise<IResponse<boolean>> {
+    let [err, result] = await to(this.checkCustomerForModerator(modratorId,customerId));
+    if (err) {
+      return {
+        status: 500,
+        message: err.message,
+      } as IResponse<boolean>;
+    }
+    if (!result) {
+      return {
+        status: 403,
+        message: 'این مشتری متعلق به شما نمی باشد',
+      } as IResponse<boolean>;
+    }
+
+    let [err1, result1] = await to(this.repo.update(eventId, {
+      deleted_at:new Date()
     }));
     if (err1) {
       return {
@@ -86,7 +169,7 @@ export class EventService extends BaseService<Model.Event>{
   }
   
 
-  public async addEvent(req: Request, entity: Model.IAddEvent): Promise<IResponse<Model.Event>> {
+  public async addEvent(req: Request, entity: Model.IAddEvent,subscribeName: string): Promise<IResponse<Model.Event>> {
     let [err, result] = await to(this.checkCustomerForModerator(entity.moderator_id,entity.customer_id));
     if (err) {
       return {
@@ -101,7 +184,7 @@ export class EventService extends BaseService<Model.Event>{
       } as IResponse<Model.Event>;
     }
 
-    (entity as any).insertedAt = new Date()
+    (entity as any).inserted_at = new Date()
     const [err1, result1] = await to(this.eventRepo.save(entity.event));
     if (err1) {
       return {
@@ -125,7 +208,7 @@ export class EventService extends BaseService<Model.Event>{
       this.customerRepo.findOne({
         where: {
           id:entity.customer_id,
-          deletedAt: IsNull(),
+          deleted_at: IsNull(),
         },
       })
     );
@@ -136,7 +219,7 @@ export class EventService extends BaseService<Model.Event>{
       } as IResponse<Model.Event>;
     }
 
-    this.sendRuleSms(entity.event,result3)
+    this.sendRuleSms(entity.event,result3,subscribeName)
 
     return {
       status: 201,

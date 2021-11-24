@@ -10,15 +10,16 @@ export class KavenegarService{
   public sendOtp(phone,temp,token:Array<string>){
     let api = Kavenegar.KavenegarApi({
       apikey: process.env.KAVENEGAR_API_KEY,
-    })
-    api.VerifyLookup({
+    });
+    let data = {
       'receptor': phone,
-      'template': temp,
-      'token': token[0],
-      'token2': token[1],
-      'token3': token[2],
+      'template': temp.trim(),
+      'token': token[0].replace(' ','_'),
+      'token2': (token[1] && token[1].replace(' ','_')),
+      'token3': (token[2] && token[2].replace(' ','_')),
       'type': 'sms',
-    },
+    };
+    api.VerifyLookup(data,
       function(response, status,err) {
         console.log(response);
         console.log(status);

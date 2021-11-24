@@ -18,7 +18,7 @@ export class PersonService{
 
   public fetchPerson():Promise<Array<Person>>{
     return this.repo.query(`
-      select bp.seller_id seller_id,au.phone phone,au.name,count(*) count from bon_property bp
+      select au.id, bp.seller_id seller_id,au.phone phone,au.name,count(*) count from bon_property bp
       inner join auther_user au on au.id = bp.seller_id
       inner join auther_user_roles ar on ar.user_id = bp.seller_id
       where
@@ -134,8 +134,8 @@ export class PersonService{
           });
         }
         
-        return new Promise((res,_)=>{
-          res(true);
+        return new Promise((resolve,_)=>{
+          resolve(res[0].last_value);
         });
 
       }

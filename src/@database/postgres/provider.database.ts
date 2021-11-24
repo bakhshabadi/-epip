@@ -2,7 +2,7 @@ import { Customer } from '../../admin/models/crm/customer.model';
 import { Post } from '../../admin/models/crm/post.model';
 import { Event } from '../../admin/models/crm/event.model';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import { Competitor } from 'src/admin/models/crm/file.model copy';
+import { Competitor } from 'src/admin/models/crm/file.model';
 
 
 export const DatabaseProviders = [
