@@ -13,6 +13,7 @@ import { DatabaseModule } from "src/@database/database.module";
 import { KavenegarService } from "src/admin/services/kavenegar.service";
 import { AvanakService } from "src/admin/services/avanak.service";
 import { EventProviders, EventService } from "src/admin/services/event.service";
+import { PersonProviders, PersonService } from "src/admin/services/person.service";
 
 @Module({
   imports: [ 
@@ -30,10 +31,12 @@ import { EventProviders, EventService } from "src/admin/services/event.service";
   providers: [
     AdminTasksService,
     CustomerService,
+    PersonService,
     EventService,
     KavenegarService,
     AvanakService,
     ...CustomerProviders,
+    ...PersonProviders,
     ...EventProviders,
     {
       provide: APP_GUARD,

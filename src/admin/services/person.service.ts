@@ -4,6 +4,9 @@ import { Customer } from '../models/crm/customer.model';
 import { DB_Providers } from 'src/@database/enums/db.enum';
 import { Person } from '../models/moz/model.model';
 import * as Axios from "axios";
+import to from 'await-to-js';
+import { IResponse } from '@lib/epip-crud';
+import { CustomerService } from './customer.service';
 
 @Injectable()
 export class PersonService{
@@ -12,7 +15,9 @@ export class PersonService{
     private repo:Repository<any>,
 
     @Inject('CUSTOMER_REPOSITORY')
-    private customerRepo:Repository<Customer>
+    private customerRepo:Repository<Customer>,
+
+    private readonly crmService: CustomerService
   ){
   }
 
@@ -141,6 +146,71 @@ export class PersonService{
       }
   }
   
+
+  public async moveToCrm(id: number):Promise<IResponse<Customer>>{
+    let [err,data] = await to(this.customerRepo.find({
+      relations:['events','post'],
+      where:{
+        moz_id: id
+      }
+    }));
+
+    if(err){
+      return {
+        status:500,
+        message: err.message,
+        result: null
+      }
+    }
+
+    if(data.length){
+      return {
+        status:201,
+        message: "کاربر مورد نظر در سیستم یافت گردید",
+        result: data[0]
+      }
+    }
+
+    let [err2,people] = await to(this.repo.query(`
+      select au.id, au.phone phone,au.name from auther_user au
+      where
+        au.id=$1
+    `,[id]));
+
+    if(err2){
+      return {
+        status:500,
+        message: err2.message,
+        result: null
+      }
+    }
+
+    const element = new Customer()
+    element.name=people[0].name || "";
+    element.seller_id=people[0].seller_id;
+    element.agency='';
+    element.address='';
+    element.phone=people[0].phone;
+    element.count_ads=people[0].count;
+    element.moz_id=people[0].id;
+    
+    let res= await this.crmService.post(null,element);
+
+    if(res.status!=201){
+      return {
+        status:500,
+        message:res.message,
+        result: null
+      }
+    }
+
+    return {
+      status:201,
+      message: "عملیات به درستی صورت گرفت",
+      result: res.result
+    }
+
+  }
 }
 
 export const PersonProviders = [

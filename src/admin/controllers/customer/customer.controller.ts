@@ -60,6 +60,12 @@ export class CustomerController {
     
   }
 
+  @ApiPost(Customer,":mozId")
+  public async moveToCrm(@Req() req: Request, @Param() param) : Promise<IResponse<Customer>>{
+
+    return await this.mozService.moveToCrm(param.mozId);
+  }
+
   @ApiPut(Customer,':id')
   public async put(@Req() req: Request, @Param() param,@Body() entity:Customer): Promise<IResponse<Customer>>  {
     return await this.crmService.put(req,param.id,entity);

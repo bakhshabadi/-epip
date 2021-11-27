@@ -26,12 +26,10 @@ export class EventService extends BaseService<Model.Event>{
   public sendRuleSms(event:Model.Event, customer: Model.Customer,details: string){
     switch (event.subject) {
       case ConstService.EventStatus.buySubscribe:
-        //sms welcome
         this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name,details,customer.moderator_name]);
         break;
       case ConstService.EventStatus.trackOrder:
-        //sms welcome
-        this.kavenegar.sendOtp(customer.phone,TemplateType.Survey,[customer.name]);
+        this.kavenegar.sendOtp(customer.phone,TemplateType.Survey,[customer.name,customer.moderator_name]);
         break;
       case ConstService.EventStatus.buyFinalSubscribe:
         this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name,details,customer.moderator_name]);
@@ -91,6 +89,9 @@ export class EventService extends BaseService<Model.Event>{
         moderator_id:modratorId
       },'');
 
+      let avanakTime=new Date(Date.now()+(+process.env.SEND_AVANAK_CALL_TIME_HOUR*3600*1000));
+      avanakTime.setHours(+process.env.SEND_AVANAK_CALL_AFTER_TIME_HOUR);
+      
       this.addEvent(req,{
         customer_id:customerId,
         event:{
@@ -99,7 +100,7 @@ export class EventService extends BaseService<Model.Event>{
           details: customer.name,
           is_done: '',
           is_auto_service: true, //سیستم به صورت اتومات کار را انجام میدهد
-          event_time: new Date(Date.now()+(+process.env.SEND_AVANAK_CALL_TIME_HOUR*3600*1000))
+          event_time: avanakTime
         } as Model.Event,
         moderator_id:modratorId
       },'');
