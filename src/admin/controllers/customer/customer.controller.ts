@@ -30,10 +30,10 @@ export class CustomerController {
   public async post(@Req() req: Request, @Body() entity:Customer): Promise<IResponse<any>>  {
     //IResponse<Customer>
     let [err,data] =await to(this.mozService.addPerson(entity));
-    
+    console.log("********************")
     if(err){
       return {
-        status: 500,
+        status: 501,
         message: (err as any)
       } as IResponse<string>;
     }else{

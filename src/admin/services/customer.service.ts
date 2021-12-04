@@ -8,6 +8,7 @@ import { AvanakService } from './avanak.service';
 import { KavenegarService } from './kavenegar.service';
 import { TemplateType } from '../enums/kavenegar.type';
 import { Customer, Event } from '../models/crm';
+import { PersonService } from './person.service';
 
 @Injectable()
 export class CustomerService extends BaseService<Customer>{
@@ -89,6 +90,7 @@ export class CustomerService extends BaseService<Customer>{
     }
 
   }
+
 
 }
 

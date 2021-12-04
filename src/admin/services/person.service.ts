@@ -3,7 +3,6 @@ import { Connection, Repository } from 'typeorm';
 import { Customer } from '../models/crm/customer.model';
 import { DB_Providers } from 'src/@database/enums/db.enum';
 import { Person } from '../models/moz/model.model';
-import * as Axios from "axios";
 import to from 'await-to-js';
 import { IResponse } from '@lib/epip-crud';
 import { CustomerService } from './customer.service';
@@ -23,18 +22,35 @@ export class PersonService{
 
   public fetchPerson():Promise<Array<Person>>{
     return this.repo.query(`
-      select au.id, bp.seller_id seller_id,au.phone phone,au.name,count(*) count from bon_property bp
+      select
+          au.id,
+          bp.seller_id seller_id,
+          au.phone phone,
+          au.name,
+          count(*) count
+      from bon_property bp
       inner join auther_user au on au.id = bp.seller_id
-      inner join auther_user_roles ar on ar.user_id = bp.seller_id
-      where
-        ar.role_id not in (4,6)
-        and now() <= (bp.inserted_at + 90 * INTERVAL '1 day')
-        and bp.seller_id not in (
-            SELECT seller_id FROM dblink('dbname=db1','select seller_id from db1.public.customer') as t1(seller_id integer)
-          )
-      group by bp.seller_id,au.phone,au.name
+      where (
+          select count(*)
+          from auther_user_roles ar
+          where ar.user_id = au.id
+          and (ar.role_id =4 or ar.role_id=6)
+      )=0
+      and now() <= (bp.inserted_at + 90 * INTERVAL '1 day')
+      and bp.seller_id not in (
+        SELECT seller_id FROM dblink('dbname=crm','select moz_id from crm.public.customer') as t1(seller_id integer)
+      )
+      group by bp.seller_id,au.phone,au.name, au.id
       order by count(*) desc
     `) as Promise<Array<Person>>
+  }
+
+  private async setRole(userId,postId){
+    return await this.repo.query(`
+      insert into auther_user_roles(user_id,role_id)values(
+        ${userId},${postId==1?4:6}
+      )
+    `);
   }
 
   public async addPerson(entity:Customer):Promise<any>{
@@ -46,8 +62,16 @@ export class PersonService{
     `,[entity.phone]);
 
     if(res.length){
-      return new Promise((_,rej)=>{
-        return rej('نام کاربری شما وجود دارد')
+      let res1 = await this.setRole(res[0]["user_ptr_id"],entity.post.id);
+
+      if(!res1){
+        return new Promise((_,rej)=>{
+          return rej('خطا در ثبت نقش مشتری')
+        });
+      }
+      
+      return new Promise((resolve,_)=>{
+        return resolve(res[0]["user_ptr_id"])
       });
     }
 
@@ -64,7 +88,8 @@ export class PersonService{
         active,
         expire,
         domain_id,
-        parent_id
+        parent_id,
+        max_session
       )values(
         null,
         now(),
@@ -77,7 +102,8 @@ export class PersonService{
         true,
         null,
         null,
-        null
+        null,
+        1
       )
     `,[
         entity.name,
@@ -127,11 +153,7 @@ export class PersonService{
           });
         }
 
-        res1=await this.repo.query(`
-          insert into auther_user_roles(user_id,role_id)values(
-            ${res[0].last_value},${entity.post.id==1?4:6}
-          )
-        `);
+        res1 = await this.setRole(res[0].last_value,entity.post.id);
 
         if(!res1){
           return new Promise((_,rej)=>{

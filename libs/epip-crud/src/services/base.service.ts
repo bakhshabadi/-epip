@@ -111,15 +111,15 @@ export class BaseService<T> {
 
   public async post(req: Request, entity: T): Promise<IResponse<T>> {
     (entity as any).inserted_at = new Date()
-    if (this.relations) {
-      for (const key in entity) {
-        if (Object.prototype.hasOwnProperty.call(entity, key)) {
-          if (this.relations.includes(key)) {
-            delete entity[key];
-          }
-        }
-      }
-    }
+    // if (this.relations) {
+    //   for (const key in entity) {
+    //     if (Object.prototype.hasOwnProperty.call(entity, key)) {
+    //       if (this.relations.includes(key)) {
+    //         delete entity[key];
+    //       }
+    //     }
+    //   }
+    // }
     const [err, result] = await to(this.repo.save(entity));
     if (err) {
       return {

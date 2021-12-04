@@ -48,7 +48,7 @@ export class AdminTasksService {
     let num=0;
     for (let i = 0; i < people.length; i++) {
       const element = new Customer()
-      element.name=people[i].name;
+      element.name=people[i].name || " ";
       element.seller_id=people[i].seller_id;
       element.agency='';
       element.address='';
