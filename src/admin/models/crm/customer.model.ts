@@ -61,14 +61,18 @@ export class Customer extends BaseEntity{
   status: string
 
   @ApiProperty()
+  @Column({ default: '', length: 1000})
+  competitor: string
+
+  @ApiProperty()
   @ManyToMany(() => Event)
   @JoinTable()
   events: Array<Event>;
 
-  @ApiProperty()
-  @ManyToMany(() => Competitor)
-  @JoinTable()
-  competitor: Array<Competitor>;
+  // @ApiProperty()
+  // @ManyToMany(() => Competitor)
+  // @JoinTable()
+  // competitor: Array<Competitor>;
 
   @ApiProperty()
   @Column({ default: false})

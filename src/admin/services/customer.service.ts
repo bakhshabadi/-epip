@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { BaseService, IResponse} from '@lib/epip-crud';
+import { BaseService, IResponse, IResponseAll} from '@lib/epip-crud';
 import { Connection, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { DB_Providers } from 'src/@database/enums/db.enum';
 import to from 'await-to-js';
@@ -92,6 +92,25 @@ export class CustomerService extends BaseService<Customer>{
   }
 
 
+  public async getCustomers(req,modratorId:number, district_id:number):Promise<IResponseAll<Customer>>{
+    let data:Array<Customer> = await this.repo.query(`
+    SELECT c.*, t1.count count_ads FROM dblink('dbname=moz','
+      select bp.seller_id, count(*) count from bon_property bp
+      inner join bon_neighborhood bn on bn.product_ptr_id=bp.neighborhood_id
+      where bp.district_id=${district_id}
+      group by bp.seller_id
+    ') as t1(seller_id bigint,count integer)
+    inner join customer c on c.moz_id=t1.seller_id
+    order by t1.count desc;
+
+    `)
+
+    return {
+      status : 200,
+      results : data,
+      message : "",
+    } as IResponseAll<Customer>;
+  }
 }
 
 export const CustomerProviders = [

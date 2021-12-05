@@ -17,7 +17,18 @@ export class CustomerController {
 
   @ApiGetAll(Customer)
   public async getAll(@Req() req: Request): Promise<IResponseAll<Customer>>  {
-    let data= await this.crmService.getAll(req);
+    let data:IResponseAll<Customer>=null;
+    let query:any= req.query;
+    if(query.moderator_name__isnull){
+      data = await this.crmService.getAll(req);
+    }else{
+      if(query.neighborhood_id){
+        data = await this.crmService.getCustomers(req,query.moderator_id,query.district_id);
+      }else{
+        data = await this.crmService.getAll(req);
+      }
+    }
+    
     return data;
   }
 
