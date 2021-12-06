@@ -8,7 +8,7 @@ import { AvanakService } from './avanak.service';
 import { KavenegarService } from './kavenegar.service';
 import { TemplateType } from '../enums/kavenegar.type';
 import { Customer, Event } from '../models/crm';
-import { PersonService } from './person.service';
+import * as _ from "lodash";
 
 @Injectable()
 export class CustomerService extends BaseService<Customer>{
@@ -93,18 +93,82 @@ export class CustomerService extends BaseService<Customer>{
 
 
   public async getCustomers(req,modratorId:number, district_id:number):Promise<IResponseAll<Customer>>{
-    let data:Array<Customer> = await this.repo.query(`
-    SELECT c.*, t1.count count_ads FROM dblink('dbname=moz','
+    let sql=`
+    SELECT 
+      e.id as event_id,
+      e.inserted_at as event_inserted_at,
+      e.updated_at as event_updated_at,
+      e.deleted_at as event_deleted_at,
+      e.subject as event_subject,
+      e.details as event_details,
+      e.event_time as event_event_time,
+      e.is_auto_service as event_is_auto_service,
+      e.is_done as event_is_done,
+      c.*, 
+      t1.count count_ads 
+    FROM dblink('dbname=moz','
       select bp.seller_id, count(*) count from bon_property bp
       inner join bon_neighborhood bn on bn.product_ptr_id=bp.neighborhood_id
-      where bp.district_id=${district_id}
+      where bn.district_id=${district_id}
       group by bp.seller_id
     ') as t1(seller_id bigint,count integer)
     inner join customer c on c.moz_id=t1.seller_id
-    order by t1.count desc;
+    left join customer_events_event ee on ee."customerId"=c.id
+    left join event e on e.id=ee."eventId"
+    ${
+      (()=>{
+        let where=[];
+        if(req.query.moderator_name__isnull){
+          where.push('c.moderator_name is null')
+        }
+        if(req.query.phone__contains){
+          where.push(`c.phone like '%${req.query.phone__contains}%'`)
+        }
 
-    `)
-
+        return where.length ? ' where ' + where.join (' and '): '';
+      })()
+    }
+    order by t1.count desc
+    limit ${req.query.limit || 15} offset ${req.query.offset || 0};
+    `
+    console.log(sql)
+    let data:Array<Customer> = await this.repo.query(sql)
+    data=_(data).groupBy(f=>f.id).value();
+    data=_(data).map(f=>({
+      address: f[0].address,
+      advantages: f[0].advantages,
+      agency: f[0].agency,
+      competitor: f[0].competitor,
+      count_ads: f[0].count_ads,
+      deleted_at: f[0].deleted_at,
+      disadvantages: f[0].disadvantages,
+      filing_rate: f[0].filing_rate,
+      id: f[0].id,
+      inserted_at: f[0].inserted_at,
+      is_video_record: f[0].is_video_record,
+      moderator_id: f[0].moderator_id,
+      moderator_name: f[0].moderator_name,
+      moz_id: f[0].moz_id,
+      name: f[0].name,
+      phone: f[0].phone,
+      postId: f[0].postId,
+      seller_id: f[0].seller_id,
+      status: f[0].status,
+      subject: f[0].subject,
+      support_rate: f[0].support_rate,
+      updated_at: f[0].updated_at,
+      events:f.filter(f=>f.event_id).map(f=>({
+        id: f.event_id,
+        inserted_at: f.event_inserted_at,
+        updated_at: f.event_updated_at,
+        deleted_at: f.event_deleted_at,
+        subject: f.event_subject,
+        details: f.event_details,
+        event_time: f.event_event_time,
+        is_auto_service: f.event_is_auto_service,
+        is_done: f.event_is_done,
+      }))
+    })).value();
     return {
       status : 200,
       results : data,

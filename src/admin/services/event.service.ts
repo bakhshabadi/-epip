@@ -28,6 +28,9 @@ export class EventService extends BaseService<Model.Event>{
       case ConstService.EventStatus.buySubscribe:
         this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name,details,customer.moderator_name]);
         break;
+      case ConstService.EventStatus.customSubscribe:
+        this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name,details,customer.moderator_name]);
+        break;
       case ConstService.EventStatus.trackOrder:
         this.kavenegar.sendOtp(customer.phone,TemplateType.Survey,[customer.name,customer.moderator_name]);
         break;

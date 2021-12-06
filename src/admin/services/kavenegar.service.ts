@@ -14,9 +14,9 @@ export class KavenegarService{
     let data = {
       'receptor': phone,
       'template': temp.trim(),
-      'token': token[0].replace(' ','_'),
-      'token2': (token[1] && token[1].replace(' ','_')),
-      'token3': (token[2] && token[2].replace(' ','_')),
+      'token': token[0].replace(/ /g,'_'),
+      'token2': (token[1] && token[1].replace(/ /g,'_')),
+      'token3': (token[2] && token[2].replace(/ /g,'_')),
       'type': 'sms',
     };
     api.VerifyLookup(data,

@@ -1,5 +1,5 @@
 import { ApiController, ApiDelete, ApiGet, ApiGetAll, ApiPatch, ApiPost, ApiPut, IResponse, IResponseAll } from "@lib/epip-crud";
-import { Body, Get, Param, Req } from "@nestjs/common";
+import { Body, Get, Param, Post, Req } from "@nestjs/common";
 import to from "await-to-js";
 import { Request } from "express";
 import { Customer } from "src/admin/models/crm/customer.model";
@@ -20,9 +20,13 @@ export class CustomerController {
     let data:IResponseAll<Customer>=null;
     let query:any= req.query;
     if(query.moderator_name__isnull){
-      data = await this.crmService.getAll(req);
+      if(query.district_id){
+        data = await this.crmService.getCustomers(req,query.moderator_id,query.district_id);
+      }else{
+        data = await this.crmService.getAll(req);
+      }
     }else{
-      if(query.neighborhood_id){
+      if(query.district_id){
         data = await this.crmService.getCustomers(req,query.moderator_id,query.district_id);
       }else{
         data = await this.crmService.getAll(req);
@@ -37,11 +41,15 @@ export class CustomerController {
     return await this.crmService.get(req,param.id);
   }
 
+  @Post("/SetAutoRole/:userId")
+  public async setAutoRole(@Req() req: Request, @Param() params:any){
+    return await this.mozService.setRole(params.userId,1);
+  }
+
   @ApiPost(Customer)
   public async post(@Req() req: Request, @Body() entity:Customer): Promise<IResponse<any>>  {
     //IResponse<Customer>
     let [err,data] =await to(this.mozService.addPerson(entity));
-    console.log("********************")
     if(err){
       return {
         status: 501,
@@ -61,7 +69,7 @@ export class CustomerController {
           }
         } as IResponse<any>;
       }
-
+      console.log(ret.message);
       return {
         status: 500,
         message: 'مشتری در سامانه crm ثبت نشد.'

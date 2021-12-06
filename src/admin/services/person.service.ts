@@ -10,7 +10,7 @@ import { CustomerService } from './customer.service';
 @Injectable()
 export class PersonService{
   constructor(
-    @Inject('PERSON_REPOSITORY')
+    @Inject('MOZ_REPOSITORY')
     private repo:Repository<any>,
 
     @Inject('CUSTOMER_REPOSITORY')
@@ -38,14 +38,27 @@ export class PersonService{
       )=0
       and now() <= (bp.inserted_at + 90 * INTERVAL '1 day')
       and bp.seller_id not in (
-        SELECT seller_id FROM dblink('dbname=crm','select moz_id from crm.public.customer') as t1(seller_id integer)
+        SELECT seller_id FROM dblink('dbname=${process.env.DB_DATABASE}','select moz_id from ${process.env.DB_DATABASE}.public.customer') as t1(seller_id integer)
       )
       group by bp.seller_id,au.phone,au.name, au.id
       order by count(*) desc
     `) as Promise<Array<Person>>
   }
 
-  private async setRole(userId,postId){
+  public async setRole(userId,postId){
+    let sql="select * from auther_user_roles where user_id=$1 and role_id=$2"
+    let [err,data] = await to(this.repo.query(sql,[userId,postId==1?4:6]));
+    if(err){
+      return new Promise((_,rej)=>{
+        rej('خطا در ارتباط با سرور')
+      })
+    }
+    if(data.length){
+      return new Promise((res,_)=>{
+        res(true)
+      })
+    }
+
     return await this.repo.query(`
       insert into auther_user_roles(user_id,role_id)values(
         ${userId},${postId==1?4:6}
@@ -54,7 +67,6 @@ export class PersonService{
   }
 
   public async addPerson(entity:Customer):Promise<any>{
-    
     let res= await this.repo.query(`
       select bp.* from bon_person bp
       inner join auther_user aur on bp.user_ptr_id=aur.id
@@ -63,7 +75,6 @@ export class PersonService{
 
     if(res.length){
       let res1 = await this.setRole(res[0]["user_ptr_id"],entity.post.id);
-
       if(!res1){
         return new Promise((_,rej)=>{
           return rej('خطا در ثبت نقش مشتری')
@@ -111,6 +122,7 @@ export class PersonService{
         entity.phone,
       ]);
 
+
       if(!res){
         return new Promise((_,rej)=>{
           return rej('خطا در ثبت مشتری')
@@ -152,9 +164,7 @@ export class PersonService{
             return rej('خطا در ثبت نهایی مشتری')
           });
         }
-
         res1 = await this.setRole(res[0].last_value,entity.post.id);
-
         if(!res1){
           return new Promise((_,rej)=>{
             return rej('خطا در ثبت نقش مشتری')
@@ -237,7 +247,7 @@ export class PersonService{
 
 export const PersonProviders = [
   {
-    provide: 'PERSON_REPOSITORY',
+    provide: 'MOZ_REPOSITORY',
     useFactory: (connection: Connection) => connection.manager,
     inject: [DB_Providers.MOZ_CONNECTION],
   },

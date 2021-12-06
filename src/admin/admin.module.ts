@@ -2,12 +2,14 @@ import { Module } from "@nestjs/common";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DatabaseModule } from "../@database/database.module";
 import { CustomerController } from "./controllers/customer/customer.controller";
+import { DivarController } from "./controllers/divar/divar.controller";
 import { EventController } from "./controllers/event/event.controller";
 import { PersonController } from "./controllers/person/person.controller";
 import { PostController } from "./controllers/post/post.controller";
 import { AdminTasksService } from "./crons/admin.cron";
 import { AvanakService } from "./services/avanak.service";
 import { CustomerProviders, CustomerService } from "./services/customer.service";
+import { DivarService } from "./services/divar.service";
 import { EventProviders, EventService } from "./services/event.service";
 import { KavenegarService } from "./services/kavenegar.service";
 import { PersonProviders, PersonService } from "./services/person.service";
@@ -21,11 +23,14 @@ import { PostProviders, PostService } from "./services/post.service";
     CustomerController, 
     PersonController, 
     EventController,
-    PostController
+    PostController,
+
+    DivarController,
   ],
   providers: [
     KavenegarService,
     AvanakService,
+    DivarService,
 
     CustomerService, 
     PersonService,

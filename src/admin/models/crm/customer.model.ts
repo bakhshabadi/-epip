@@ -24,11 +24,11 @@ export class Customer extends BaseEntity{
   phone: number;
 
   @ApiProperty()
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable:true })
   agency: string;
 
   @ApiProperty()
-  @Column({ length: 500 })
+  @Column({ length: 500, nullable:true })
   address: string;
 
   // @ApiProperty()
@@ -75,23 +75,23 @@ export class Customer extends BaseEntity{
   // competitor: Array<Competitor>;
 
   @ApiProperty()
-  @Column({ default: false})
+  @Column({ default: false,nullable:true})
   is_video_record: boolean;
 
   @ApiProperty()
-  @Column({default: null, type: 'int'})
+  @Column({default: null, type: 'int',nullable:true})
   filing_rate: number;
 
   @ApiProperty()
-  @Column({default: null, type: 'int'})
+  @Column({default: null, type: 'int',nullable:true})
   support_rate: number;
   
   @ApiProperty()
-  @Column({default: ''})
+  @Column({default: '',nullable:true})
   advantages: string;
 
   @ApiProperty()
-  @Column({default: ''})
+  @Column({default: '',nullable:true})
   disadvantages: string;
   
 
