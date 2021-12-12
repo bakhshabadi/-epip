@@ -29,6 +29,11 @@ export class EventController {
     } as IResponse<string>;
   }
 
+  @Patch(":id")
+  public async patch(@Req() req: Request, @Param() param, @Body() entity:Model.Event): Promise<IResponse<Model.Event>>{
+    return await this.service.patch(req, param.id, entity);
+  }
+  
   @Patch(":modaratorId/:customerId/:eventId")
   public async doneEvent(@Req() req: Request, @Param() param): Promise<IResponse<boolean>>{
     return await this.service.doneEvent(req, param.modaratorId, param.customerId, param.eventId);

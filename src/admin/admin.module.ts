@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DatabaseModule } from "../@database/database.module";
 import { CustomerController } from "./controllers/customer/customer.controller";
@@ -7,6 +7,7 @@ import { EventController } from "./controllers/event/event.controller";
 import { PersonController } from "./controllers/person/person.controller";
 import { PostController } from "./controllers/post/post.controller";
 import { AdminTasksService } from "./crons/admin.cron";
+import { AdminMiddleware } from "./middlewares/global.middleware";
 import { AvanakService } from "./services/avanak.service";
 import { CustomerProviders, CustomerService } from "./services/customer.service";
 import { DivarService } from "./services/divar.service";
@@ -43,4 +44,10 @@ import { PostProviders, PostService } from "./services/post.service";
     ...PostProviders
   ],
 })
-export class AdminModule { }
+export class AdminModule  implements NestModule { 
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AdminMiddleware)
+      .forRoutes('*');
+  }
+}

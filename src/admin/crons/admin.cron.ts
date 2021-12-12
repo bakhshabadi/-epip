@@ -27,7 +27,7 @@ export class AdminTasksService {
 
   private readonly logger = new Logger(AdminTasksService.name);
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron("0 * * * * *")
   public async handleCronTrackingCustomer() {
     let [err, data] = await this.service.trackingCustomer();
     if(err){

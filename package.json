@@ -43,6 +43,7 @@
     "axios": "^0.24.0",
     "fastify-swagger": "^4.8.4",
     "helmet": "^4.6.0",
+    "jsonwebtoken": "^8.5.1",
     "kavenegar": "^1.1.4",
     "lodash": "^4.17.21",
     "pg": "^8.7.1",

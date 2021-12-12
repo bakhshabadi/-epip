@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req } from "@nestjs/common";
+import { Controller, Delete, Get, Param, Req } from "@nestjs/common";
 import { Request } from "express";
 import { Customer } from "src/admin/models/crm/customer.model";
 import { CustomerService } from "src/admin/services/customer.service";
@@ -10,6 +10,11 @@ export class PersonController {
     private readonly mozService: PersonService,
     private readonly crmService: CustomerService
   ) {
+  }
+
+  @Delete('DeleteFreeOrders/:userId')
+  public async deleteFreeOrders(@Req() req: Request, @Param() params): Promise<any>  {
+    return this.mozService.deleteFreeOrders(params.userId);
   }
 
   @Get()

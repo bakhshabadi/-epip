@@ -122,7 +122,7 @@ export class CustomerService extends BaseService<Customer>{
           where.push('c.moderator_name is null')
         }
         if(req.query.phone__contains){
-          where.push(`c.phone like '%${req.query.phone__contains}%'`)
+          where.push(`c.phone::varchar like '%${req.query.phone__contains}%'`)
         }
 
         return where.length ? ' where ' + where.join (' and '): '';

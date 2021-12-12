@@ -45,6 +45,40 @@ export class PersonService{
     `) as Promise<Array<Person>>
   }
 
+  public async deleteFreeOrders(userId){
+    let sql=`
+      delete
+      from purchase_item
+      where order_id in (
+          select po.id
+          from purchase_order po
+          inner join purchase_item pi on po.id = pi.order_id
+          where po.user_id = $1
+            and pi.product_id in (527)
+      )
+    `;
+    
+    let [err,_]= await to(this.repo.query(sql,[userId]));
+    if(err){
+      return new Promise((_,rej)=>{
+        rej('خطا در سرور')
+      })
+    }
+
+    sql=`
+      delete
+      from purchase_order
+      where id in (
+          select po.id
+          from purchase_order po
+          inner join purchase_item pi on po.id = pi.order_id
+          where po.user_id = $1
+            and pi.product_id in (527)
+      )
+    `;
+    this.repo.query(sql,[userId]);
+  }
+
   public async setRole(userId,postId){
     let sql="select * from auther_user_roles where user_id=$1 and role_id=$2"
     let [err,data] = await to(this.repo.query(sql,[userId,postId==1?4:6]));
