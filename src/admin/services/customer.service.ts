@@ -124,6 +124,9 @@ export class CustomerService extends BaseService<Customer>{
         if(req.query.phone__contains){
           where.push(`c.phone::varchar like '%${req.query.phone__contains}%'`)
         }
+        if(req.query.moderator_id){
+          where.push(`c.moderator_id = ${req.query.moderator_id}`)
+        }
 
         return where.length ? ' where ' + where.join (' and '): '';
       })()

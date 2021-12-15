@@ -41,6 +41,7 @@
     "@nestjs/websockets": "^8.2.2",
     "await-to-js": "^3.0.0",
     "axios": "^0.24.0",
+    "encodeurl": "^1.0.2",
     "fastify-swagger": "^4.8.4",
     "helmet": "^4.6.0",
     "jsonwebtoken": "^8.5.1",

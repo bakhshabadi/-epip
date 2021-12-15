@@ -56,6 +56,7 @@ export class CustomerController {
         message: (err as any)
       } as IResponse<string>;
     }else{
+      console.log(data)
       entity.moz_id=data;
       entity.deleted_at=null;
       let ret = await this.crmService.post(req,entity);
