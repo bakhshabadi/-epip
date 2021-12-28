@@ -134,7 +134,8 @@ export class PersonService{
         expire,
         domain_id,
         parent_id,
-        max_session
+        max_session,
+        max_view_property
       )values(
         null,
         now(),
@@ -148,7 +149,8 @@ export class PersonService{
         null,
         null,
         null,
-        1
+        1,
+        60
       )
     `,[
         entity.name,

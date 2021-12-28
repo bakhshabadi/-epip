@@ -15,7 +15,13 @@ export class DivarController {
   }
 
   @Post("otp/:phone/:code")
-  public async otp(@Req() req: Request, @Param() params): Promise<IResponse<any>>  {
+  public async otp(@Req() req: Request, @Param() params,@Body() body:any): Promise<IResponse<any>>  {
     return this.repo.otp(params.phone,params.code);
+  }
+
+  @Post("post/:phone/:id/:token")
+  public async post(@Req() req: Request, @Param() params, @Body() body:any): Promise<IResponse<any>>  {
+    console.log(body);
+    return this.repo.sendToDivar(params.phone, params.id, params.token);
   }
 }
