@@ -51,6 +51,7 @@ export class CustomerController {
     //IResponse<Customer>
     let [err,data] =await to(this.mozService.addPerson(entity));
     if(err){
+      console.log(err.message)
       return {
         status: 501,
         message: (err as any)
@@ -70,7 +71,7 @@ export class CustomerController {
           }
         } as IResponse<any>;
       }
-      console.log(ret.message);
+      
       return {
         status: 500,
         message: 'مشتری در سامانه crm ثبت نشد.'

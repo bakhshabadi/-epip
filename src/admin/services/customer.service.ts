@@ -28,22 +28,64 @@ export class CustomerService extends BaseService<Customer>{
 
   public async trackingCustomer():Promise<[any, undefined] | [null, Customer[]]>{
     return await to(this.repo.query(`
-      select 
+      select
         c.id,
         c.phone,
         c.name,
         c.agency,
         c.moz_id,
         c.moderator_id,
-        e.id as event_id,
-        e.subject as event_subject,
-        e.details as event_details,
-        e."inserted_at" as "event_inserted_at",
-        e.is_done as event_is_done
+        (
+            select e.id from customer_events_event
+            inner join event e on customer_events_event."eventId" = e.id
+            where "customerId"=c.id and e.inserted_at is not null
+            and e.is_auto_service=false and e.deleted_at is null
+            and (e.event_time - INTERVAL '${210+(+process.env.TRACKING_NOTIF_MIN)} MINUTES') <= now() 
+            order by e.inserted_at desc
+            limit 1
+        ) as event_id,
+      (
+            select e.subject from customer_events_event
+            inner join event e on customer_events_event."eventId" = e.id
+            where "customerId"=c.id and e.inserted_at is not null
+            and e.is_auto_service=false and e.deleted_at is null
+            and (e.event_time - INTERVAL '${210+(+process.env.TRACKING_NOTIF_MIN)} MINUTES') <= now() 
+            order by e.inserted_at desc
+            limit 1
+        ) as event_subject,
+        (
+            select e.details from customer_events_event
+            inner join event e on customer_events_event."eventId" = e.id
+            where "customerId"=c.id and e.inserted_at is not null
+            and e.is_auto_service=false and e.deleted_at is null
+            and (e.event_time - INTERVAL '${210+(+process.env.TRACKING_NOTIF_MIN)} MINUTES') <= now() 
+            order by e.inserted_at desc
+            limit 1
+        )  as event_details,
+      (
+            select e.inserted_at from customer_events_event
+            inner join event e on customer_events_event."eventId" = e.id
+            where "customerId"=c.id and e.inserted_at is not null
+            and e.is_auto_service=false and e.deleted_at is null
+            and (e.event_time - INTERVAL '${210+(+process.env.TRACKING_NOTIF_MIN)} MINUTES') <= now() 
+            order by e.inserted_at desc
+            limit 1
+        )  as "event_inserted_at",
+      (
+            select e.is_done from customer_events_event
+            inner join event e on customer_events_event."eventId" = e.id
+            where "customerId"=c.id and e.inserted_at is not null
+            and e.is_auto_service=false and e.deleted_at is null
+            and (e.event_time - INTERVAL '${210+(+process.env.TRACKING_NOTIF_MIN)} MINUTES') <= now() 
+            order by e.inserted_at desc
+            limit 1
+        )  as event_is_done
       from customer c
-      inner join customer_events_event ce on c.id=ce."customerId"
-      inner join event e on e.id=ce."eventId"
-      where (e.event_time - INTERVAL '${210+(+process.env.TRACKING_NOTIF_MIN)} MINUTES') <= now() and e.is_done is null and is_auto_service=false and e.deleted_at is null
+      where c.moderator_id=609424 and (
+          select count(*) from customer_events_event
+          inner join event e on customer_events_event."eventId" = e.id
+          where "customerId"=c.id and e.is_done is null and e.is_auto_service=false and e.deleted_at is null
+      )>0
     `));
   }
 
