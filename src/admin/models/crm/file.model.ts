@@ -1,7 +1,7 @@
 import { BaseEntity } from "@lib/epip-crud";
 import { ApiProperty } from "@nestjs/swagger";
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
-import { Customer } from "./customer.model";
+// import { Customer } from "./customer.model";
 
 @Entity()
 export class Competitor extends BaseEntity{

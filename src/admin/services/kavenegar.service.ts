@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Customer } from '../models/crm/customer.model';
+// import { Customer } from '../models/crm/customer.model';
 import { Event } from '../models/crm';
 import * as Kavenegar from "kavenegar";
 import { TemplateType } from '../enums/kavenegar.type';

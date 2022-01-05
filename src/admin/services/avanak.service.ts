@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Customer } from '../models/crm/customer.model';
+// import { Customer } from '../models/crm/customer.model';
 import * as Axios from "axios"
 
 @Injectable()

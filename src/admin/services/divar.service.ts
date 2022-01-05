@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Connection, Repository } from 'typeorm';
-import { Customer } from '../models/crm/customer.model';
+// import { Customer } from '../models/crm/customer.model';
 import { Person } from '../models/moz/model.model';
 import to from 'await-to-js';
 import { IResponse } from '@lib/epip-crud';

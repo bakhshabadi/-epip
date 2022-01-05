@@ -1,7 +1,6 @@
 import { BaseEntity } from "@lib/epip-crud";
 import { ApiProperty } from "@nestjs/swagger";
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
-import { Customer } from "./customer.model";
 
 @Entity()
 export class Event extends BaseEntity{
@@ -28,6 +27,10 @@ export class Event extends BaseEntity{
   @ApiProperty()
   @Column({ default: false})
   is_auto_service: boolean;
+
+  @ApiProperty()
+  @Column({ type:'bigint' })
+  user_id:number;
 }
 
 export class IAddEvent{

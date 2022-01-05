@@ -1,4 +1,4 @@
-import { Customer } from '../../admin/models/crm/customer.model';
+// import { Customer } from '../../admin/models/crm/customer.model';
 import { Post } from '../../admin/models/crm/post.model';
 import { Event } from '../../admin/models/crm/event.model';
 import { ConnectionOptions, createConnection } from 'typeorm';
@@ -15,10 +15,11 @@ export const DatabaseProviders = [
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
+      entityPrefix: "crm_",
       entities: [
         // __dirname+'../../../../../src/**/*.model{.ts,.js}',
         Competitor,
-        Customer,
+        // Customer,
         Event,
         Post,
       ],

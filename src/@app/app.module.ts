@@ -8,7 +8,7 @@ import { AppRouter } from "./app.router";
 import { AdminModule } from "../admin/admin.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { AdminTasksService } from "src/admin/crons/admin.cron";
-import { CustomerProviders, CustomerService } from "src/admin/services/customer.service";
+// import { CustomerProviders, CustomerService } from "src/admin/services/customer.service";
 import { DatabaseModule } from "src/@database/database.module";
 import { KavenegarService } from "src/admin/services/kavenegar.service";
 import { AvanakService } from "src/admin/services/avanak.service";
@@ -30,12 +30,12 @@ import { PersonProviders, PersonService } from "src/admin/services/person.servic
   controllers: [],
   providers: [
     AdminTasksService,
-    CustomerService,
+    // CustomerService,
     PersonService,
     EventService,
     KavenegarService,
     AvanakService,
-    ...CustomerProviders,
+    // ...CustomerProviders,
     ...PersonProviders,
     ...EventProviders,
     {

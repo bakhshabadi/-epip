@@ -1,7 +1,7 @@
 import { BaseEntity } from "@lib/epip-crud";
 import { ApiProperty } from "@nestjs/swagger";
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
-import { Customer } from "./customer.model";
+// import { Customer } from "./customer.model";
 
 @Entity()
 export class Post extends BaseEntity{
@@ -13,7 +13,7 @@ export class Post extends BaseEntity{
   @Column({ length: 100 })
   name: string;
 
-  @OneToMany(() => Customer, customer => customer.post)
-  customers: Customer[];
+  // @OneToMany(() => Customer, customer => customer.post)
+  // customers: Customer[];
 }
 

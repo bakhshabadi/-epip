@@ -4,7 +4,6 @@ import { IResponse, IResponseAll } from "../types";
 import { Request } from "express";
 import { Req } from "@nestjs/common";
 import * as _ from "lodash";
-import { Customer } from "src/admin/models/crm";
 
 export class BaseService<T> {
   constructor(

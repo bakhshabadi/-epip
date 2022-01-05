@@ -9,6 +9,7 @@ export class AdminMiddleware implements NestMiddleware {
     let token=req.headers['authorization'];
     try {
         jwt.verify(token, process.env.JWT_SECRET);
+        (req as any).currentUser=jwt.decode(token, process.env.JWT_SECRET);
         next();
     } catch(err) {
         res.statusCode=401;
