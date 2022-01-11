@@ -4,7 +4,6 @@ import { Request } from "express";
 import * as Model from "src/admin/models/crm";
 import * as Kavenegar from "kavenegar";
 import { EventService } from "src/admin/services/event.service";
-import { env } from "process";
 import { AvanakService } from "src/admin/services/avanak.service";
 // import { Customer } from "src/admin/models/crm";
 import { KavenegarService } from "src/admin/services/kavenegar.service";
@@ -29,25 +28,25 @@ export class EventController {
     } as IResponse<string>;
   }
 
-  @Patch(":id")
-  public async patch(@Req() req: Request, @Param() param, @Body() entity:Model.Event): Promise<IResponse<Model.Event>>{
-    return await this.service.patch(req, param.id, entity);
-  }
-  
-  // @Patch(":modaratorId/:customerId/:eventId")
-  // public async doneEvent(@Req() req: Request, @Param() param): Promise<IResponse<boolean>>{
-  //   return await this.service.doneEvent(req, param.modaratorId, param.customerId, param.eventId);
+  // @Patch(":id")
+  // public async patch(@Req() req: Request, @Param() param, @Body() entity:Model.Event): Promise<IResponse<Model.Event>>{
+  //   return await this.service.patch(req, param.id, entity);
   // }
+  
+  @Patch(":eventId")
+  public async doneEvent(@Req() req: Request, @Param() param): Promise<IResponse<boolean>>{
+    return await this.service.doneEvent(req, param.eventId);
+  }
 
   // @Delete(":modaratorId/:customerId/:eventId")
   // public async removeEvent(@Req() req: Request, @Param() param): Promise<IResponse<boolean>>{
   //   return await this.service.removeEvent(req, param.modaratorId, param.customerId, param.eventId);
   // }
 
-  // @ApiGetAll(Event)
-  // public async getAll(@Req() req: Request): Promise<IResponseAll<Event>>  {
-  //   return await this.service.getAll(req);
-  // }
+  @ApiGetAll(Model.Event)
+  public async getAll(@Req() req: Request): Promise<IResponseAll<Model.Event>>  {
+    return await this.service.getAll(req);
+  }
 
   // @ApiGet(Event,':id')
   // public async get(@Req() req: Request, @Param() param): Promise<IResponse<Event>>  {

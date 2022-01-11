@@ -1,24 +1,94 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Connection, Repository } from 'typeorm';
 import { DB_Providers } from 'src/@database/enums/db.enum';
 import { Person } from '../models/moz/model.model';
 import to from 'await-to-js';
 import { IResponse } from '@lib/epip-crud';
+import { ConstService } from '../enums/event.type';
+import { AvanakService } from './avanak.service';
+import { KavenegarService } from './kavenegar.service';
+import { TemplateType } from '../enums/kavenegar.type';
+import { Event } from '../models';
 
 @Injectable()
-export class PersonService{
+export class PersonService {
   constructor(
     @Inject('MOZ_REPOSITORY')
-    private repo:Repository<any>,
+    private repo: Repository<any>,
 
-    // @Inject('CUSTOMER_REPOSITORY')
-    // private customerRepo:Repository<Customer>,
+    @Inject('EVENT_REPOSITORY')
+    public eventRepo:Repository<Event>,
 
-    // private readonly crmService:                                                         
-  ){
+    private avanak: AvanakService,
+    private kavenegar: KavenegarService,
+  ) {
+  }
+  private readonly logger = new Logger(PersonService.name);
+
+  public async autoJob() {
+    let [err, data] = await to(this.repo.query(`
+      select
+        au.id,
+        au.phone,
+        au.name,
+        bp.manager_name agency,
+        au.moderator_id,
+        ce.id as event_id,
+        ce.subject as event_subject,
+        ce.details as event_details,
+        ce."inserted_at" as "event_inserted_at",
+        ce.is_done as event_is_done
+      from auther_user au
+      inner join bon_person bp on bp.user_ptr_id=au.id
+      inner join crm_event ce on ce.user_id=au.id
+      where now() >= ce.event_time and (ce.is_done is null or ce.is_done='') and ce.is_auto_service=true and ce.deleted_at is null
+    `));
+
+    if (err) {
+      this.logger.error(err.message)
+    }
+
+    for (let i = 0; i < data.length; i++) {
+      const element = data[i];
+      switch (element.event_subject) {
+        case ConstService.EventStatus.sendSurvay:
+          this.kavenegar.sendOtp(element.phone, TemplateType.Survey, [element.name]);
+          await this.eventRepo.update(element.event_id, {
+            is_done: 'send'
+          })
+          break;
+        case ConstService.EventStatus.avanakCall:
+          this.avanak.sendVoiceMessage(element.phone);
+          await this.eventRepo.update(element.event_id, {
+            is_done: 'send'
+          })
+          break;
+      }
+
+    }
   }
 
-  public fetchPerson():Promise<Array<Person>>{
+  public trackingCustomer(): Promise<Array<Person>> {
+    return this.repo.query(`
+      select distinct on (bp.user_ptr_id)  user_id,
+        au.name,
+        au.phone,
+        bp.manager_name agency,
+        au.moderator_id,
+        ce.id as event_id,
+        ce.subject as event_subject,
+        ce.details as event_details,
+        ce.inserted_at as event_inserted_at,
+        ce.is_done as event_is_done
+      from bon_person bp
+      inner join auther_user au on au.id=bp.user_ptr_id
+      join (
+        select * from crm_event ce order by id desc
+      ) ce on ce.user_id=bp.user_ptr_id
+    `) as Promise<Array<Person>>
+  }
+
+  public fetchPerson(): Promise<Array<Person>> {
     return this.repo.query(`
       select
           au.id,
@@ -43,8 +113,8 @@ export class PersonService{
     `) as Promise<Array<Person>>
   }
 
-  public async deleteFreeOrders(userId){
-    let sql=`
+  public async deleteFreeOrders(userId) {
+    let sql = `
       delete
       from purchase_item
       where order_id in (
@@ -55,15 +125,15 @@ export class PersonService{
             and pi.product_id in (527)
       )
     `;
-    
-    let [err,_]= await to(this.repo.query(sql,[userId]));
-    if(err){
-      return new Promise((_,rej)=>{
+
+    let [err, _] = await to(this.repo.query(sql, [userId]));
+    if (err) {
+      return new Promise((_, rej) => {
         rej('خطا در سرور')
       })
     }
 
-    sql=`
+    sql = `
       delete
       from purchase_order
       where id in (
@@ -74,31 +144,31 @@ export class PersonService{
             and pi.product_id in (527)
       )
     `;
-    this.repo.query(sql,[userId]);
+    this.repo.query(sql, [userId]);
   }
 
-  public async setRole(userId,postId){
-    let sql="select * from auther_user_roles where user_id=$1 and role_id=$2"
-    let [err,data] = await to(this.repo.query(sql,[userId,postId==1?4:6]));
-    if(err){
-      return new Promise((_,rej)=>{
+  public async setRole(userId, postId) {
+    let sql = "select * from auther_user_roles where user_id=$1 and role_id=$2"
+    let [err, data] = await to(this.repo.query(sql, [userId, postId == 1 ? 4 : 6]));
+    if (err) {
+      return new Promise((_, rej) => {
         rej('خطا در ارتباط با سرور')
       })
     }
-    if(data.length){
-      return new Promise((res,_)=>{
+    if (data.length) {
+      return new Promise((res, _) => {
         res(true)
       })
     }
 
     return await this.repo.query(`
       insert into auther_user_roles(user_id,role_id)values(
-        ${userId},${postId==1?4:6}
+        ${userId},${postId == 1 ? 4 : 6}
       )
     `);
   }
 
-  
+
 
   // public async addPerson(entity:Customer):Promise<any>{
   //   let res= await this.repo.query(`
@@ -114,7 +184,7 @@ export class PersonService{
   //         return rej('خطا در ثبت نقش مشتری')
   //       });
   //     }
-      
+
   //     return new Promise((resolve,_)=>{
   //       return resolve(res[0]["user_ptr_id"])
   //     });
@@ -164,7 +234,7 @@ export class PersonService{
   //         return rej('خطا در ثبت مشتری')
   //       });
   //     }
-    
+
   //     if(res){
   //       res= await this.repo.query(`SELECT last_value from auther_user_id_seq`);
   //       if(!res){
@@ -206,14 +276,14 @@ export class PersonService{
   //           return rej('خطا در ثبت نقش مشتری')
   //         });
   //       }
-        
+
   //       return new Promise((resolve,_)=>{
   //         resolve(res[0].last_value);
   //       });
 
   //     }
   // }
-  
+
 
   // public async moveToCrm(id: number):Promise<IResponse<Customer>>{
   //   let [err,data] = await to(this.customerRepo.find({
@@ -261,7 +331,7 @@ export class PersonService{
   //   element.phone=people[0].phone;
   //   element.count_ads=people[0].count;
   //   element.moz_id=people[0].id;
-    
+
   //   let res= await this.crmService.post(null,element);
 
   //   if(res.status!=201){

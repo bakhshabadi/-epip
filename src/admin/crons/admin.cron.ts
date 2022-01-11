@@ -17,7 +17,6 @@ import { PersonService } from '../services/person.service';
 })
 export class AdminTasksService {
   constructor( 
-    // private service: CustomerService,
     private mozService: PersonService,
   ){}
   @WebSocketServer() 
@@ -27,20 +26,20 @@ export class AdminTasksService {
 
   private readonly logger = new Logger(AdminTasksService.name);
 
-  // @Cron("0 * * * * *")
-  // public async handleCronTrackingCustomer() {
-  //   let [err, data] = await this.service.trackingCustomer();
-  //   if(err){
-  //     return this.logger.error(err.message);
-  //   }
+  @Cron("0 * * * * *")
+  public async handleCronTrackingCustomer() {
+    let [err, data] = await to(this.mozService.trackingCustomer());
+    if(err){
+      return this.logger.error(err.message);
+    }
     
-  //   this.server.emit('tracking', data);
-  // }
+    this.server.emit('tracking', data);
+  }
 
-  // @Cron(CronExpression.EVERY_10_MINUTES)
-  // public async handleCron() {
-  //   await this.service.autoJob();
-  // }
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  public async handleCron() {
+    await this.mozService.autoJob();
+  }
 
   // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   // public async getchUsers(){
