@@ -187,7 +187,7 @@ export class EventService extends BaseService<Model.Event>{
         message: "کاربری یافت نشده است",
       } as IResponse<Model.Event>;
     }
-    if(res0[0].moderator_id){
+    if(res0[0].moderator_id && res0[0].moderator_id!=(req as any).currentUser.user_id){
       return {
         status: 500.2,
         message: "این کاربر متعلق به شخص دیگری می باشد",

@@ -13,7 +13,7 @@ export class Event extends BaseEntity{
   subject: string;
 
   @ApiProperty()
-  @Column({ length: 500 })
+  @Column({ length: 500,nullable: true })
   details: string;
 
   @ApiProperty()

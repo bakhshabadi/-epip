@@ -1,4 +1,6 @@
+import { IResponse, IResponseAll } from "@lib/epip-crud";
 import { Controller, Delete, Get, Param, Req } from "@nestjs/common";
+import to from "await-to-js";
 import { Request } from "express";
 // import { Customer } from "src/admin/models/crm/customer.model";
 // import { CustomerService } from "src/admin/services/customer.service";
@@ -12,9 +14,28 @@ export class PersonController {
   ) {
   }
 
+  @Get('/')
+  public async getUsers(@Req() req: Request): Promise<any>  {
+    return this.mozService.getUsers(req);
+  }
+
   @Delete('DeleteFreeOrders/:userId')
-  public async deleteFreeOrders(@Req() req: Request, @Param() params): Promise<any>  {
-    return this.mozService.deleteFreeOrders(params.userId);
+  public async deleteFreeOrders(@Req() req: Request, @Param() params): Promise<IResponseAll<any>>  {
+    const [err,data]= await to(this.mozService.deleteFreeOrders(params.userId));
+    if(err){
+      return {
+        status:500,
+        count:0,
+        results : [],
+        message:err.message
+      } as IResponseAll<any>
+    }
+
+    return {
+      status:200,
+      count:1,
+      results : data      
+    } as IResponseAll<any>
   }
 
   // @Get()

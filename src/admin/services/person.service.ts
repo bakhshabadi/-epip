@@ -9,6 +9,8 @@ import { AvanakService } from './avanak.service';
 import { KavenegarService } from './kavenegar.service';
 import { TemplateType } from '../enums/kavenegar.type';
 import { Event } from '../models';
+import { Request } from "express";
+import * as _ from 'lodash';
 
 @Injectable()
 export class PersonService {
@@ -23,6 +25,53 @@ export class PersonService {
     private kavenegar: KavenegarService,
   ) {
   }
+
+  public async getUsers(req: Request): Promise<any>{
+    const [err,data]= await to(this.repo.query(`
+      select
+        au.id,
+        au.name,
+        au.phone,
+        au.moderator_id,
+        (select name from auther_user au1 where au1.id=au.moderator_id) moderator_name,
+        bp.manager_name,
+        (
+            select string_agg(ar.name,',')
+            from auther_role ar
+            inner join auther_user_roles aur on ar.id = aur.role_id
+            where aur.user_id=au.id
+        ) role_name,
+        (
+            select string_agg(aur.role_id::varchar,',')
+            from auther_user_roles aur
+            where aur.user_id=au.id
+        ) role_ids,
+        (select count(*) from auther_session ase where ase.user_id=au.id) session_count
+        ,(
+            select bp2.inserted_at
+            from bon_property bp2
+            where bp2.seller_id=au.id
+            order by bp2.inserted_at desc
+            limit 1
+        ) last_created
+      from auther_user au
+      inner join bon_person bp on au.id = bp.user_ptr_id
+      order by last_created desc
+      limit ${req.query.limit || 10} offset ${req.query.offset || 0}
+    `));
+    if(err){
+      return new Promise((_,rej)=>{
+        rej('خطا در سرور');
+      })
+    }
+
+    return new Promise((res,_)=>{
+      res(data)
+    })
+
+    // return _(data).orderBy(['last_created','desc']).value();
+  }
+
   private readonly logger = new Logger(PersonService.name);
 
   public async autoJob() {
