@@ -75,9 +75,11 @@ export class DivarService {
     const [err3, _] = await to(Axios.default.post(process.env.SCRAPPER_API,{
       token,
       "city_id": 2,
-      "username": phone,
+      "username": "0"+phone,
       "person_name": 'crm > '+(req as any).currentUser.name,
       "districts": [],
+      "user_agent":req.headers["user_agent"],
+      "limit": 50,
     }))
     
     if (err3) {
