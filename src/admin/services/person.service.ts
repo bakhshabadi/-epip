@@ -171,7 +171,7 @@ export class PersonService {
           from purchase_order po
           inner join purchase_item pi on po.id = pi.order_id
           where po.user_id = $1
-            and pi.product_id in (527)
+            and pi.product_id in (527,528)
       )
     `;
 

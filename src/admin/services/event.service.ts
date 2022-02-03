@@ -25,6 +25,7 @@ export class EventService extends BaseService<Model.Event>{
   }
 
   public sendRuleSms(event:Model.Event, customer: Model.IUser,details: string){
+    console.log(event,customer,details)
     switch (event.subject) {
       case ConstService.EventStatus.buySubscribe:
         this.kavenegar.sendOtp(customer.phone,TemplateType.Welcome,[customer.name,details,customer.moderator_name]);
@@ -203,6 +204,16 @@ export class EventService extends BaseService<Model.Event>{
       } as IResponse<Model.Event>;
     }
 
+    const [err2, res2] = await to(this.eventRepo.query(`
+      update auther_user set moderator_id=$1 where id=$2
+    `,[(req as any).currentUser.user_id,entity.user_id]));
+    if (err2) {
+      return {
+        status: 503,
+        message: err2.message,
+      } as IResponse<Model.Event>;
+    }
+
     const [err3, result3] = await to(
       this.getUser(entity.user_id)
     );
@@ -216,15 +227,7 @@ export class EventService extends BaseService<Model.Event>{
 
     this.sendRuleSms(entity,result3,subscribeName)
 
-    const [err2, res2] = await to(this.eventRepo.query(`
-      update auther_user set moderator_id=$1 where id=$2
-    `,[(req as any).currentUser.user_id,entity.user_id]));
-    if (err2) {
-      return {
-        status: 503,
-        message: err2.message,
-      } as IResponse<Model.Event>;
-    }
+    
 
     return {
       status: 201,
