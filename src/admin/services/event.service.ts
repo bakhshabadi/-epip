@@ -195,7 +195,7 @@ export class EventService extends BaseService<Model.Event>{
       } as IResponse<Model.Event>;
     }
 
-    entity.inserted_at = new Date()
+    entity.inserted_at = new Date();
     const [err1, result1] = await to(this.eventRepo.save(entity));
     if (err1) {
       return {
