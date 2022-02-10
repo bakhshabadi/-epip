@@ -25,6 +25,10 @@ export class Event extends BaseEntity{
   is_done: string;
 
   @ApiProperty()
+  @Column({ default: null, type: 'bigint'})
+  order_id: number;
+
+  @ApiProperty()
   @Column({ default: false})
   is_auto_service: boolean;
 
