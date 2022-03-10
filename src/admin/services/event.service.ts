@@ -204,15 +204,15 @@ export class EventService extends BaseService<Model.Event>{
       } as IResponse<Model.Event>;
     }
 
-    const [err2, res2] = await to(this.eventRepo.query(`
-      update auther_user set moderator_id=$1 where id=$2
-    `,[(req as any).currentUser.user_id,entity.user_id]));
-    if (err2) {
-      return {
-        status: 503,
-        message: err2.message,
-      } as IResponse<Model.Event>;
-    }
+    // const [err2, res2] = await to(this.eventRepo.query(`
+    //   update auther_user set moderator_id=$1 where id=$2
+    // `,[(req as any).currentUser.user_id,entity.user_id]));
+    // if (err2) {
+    //   return {
+    //     status: 503,
+    //     message: err2.message,
+    //   } as IResponse<Model.Event>;
+    // }
 
     const [err3, result3] = await to(
       this.getUser(entity.user_id)

@@ -8,6 +8,7 @@ import { PersonService } from '../services/person.service';
 
 @Injectable()
 @WebSocketGateway(8085,{
+  transports: ['websocket'],
   cors:{
     allowedHeaders:'*',
     methods:'*',
