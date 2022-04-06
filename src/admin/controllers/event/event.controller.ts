@@ -5,7 +5,6 @@ import * as Model from "src/admin/models/crm";
 import * as Kavenegar from "kavenegar";
 import { EventService } from "src/admin/services/event.service";
 import { AvanakService } from "src/admin/services/avanak.service";
-// import { Customer } from "src/admin/models/crm";
 import { KavenegarService } from "src/admin/services/kavenegar.service";
 
 @ApiController(Model.Event)
